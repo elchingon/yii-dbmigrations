@@ -1,7 +1,7 @@
 <?php
 
 // Import the main classes
-Yii::import('application.extensions.DbMigrations.*');
+Yii::import('application.extensions.yii-dbmigrations.*');
 
 // The migration command
 class CDbMigrationCommand extends CConsoleCommand {
