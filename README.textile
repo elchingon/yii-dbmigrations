@@ -188,4 +188,4 @@ the author on:
 
 * Website: http://www.yellowduck.be
 * Twitter: http://twitter.com/pieterclaerhout
-
+* Github: http://github.com/pieterclaerhout/yii-dbmigrations/tree/master
