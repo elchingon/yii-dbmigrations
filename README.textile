@@ -1,0 +1,191 @@
+h1. Yii DB Migrations
+
+A database migrations engine for the Yii framework. It comes in the form of an
+extension which can be dropped into any existing Yii framework application.
+
+It relies on the database abstraction layer of the Yii framework to talk to the
+database engine.
+
+It's largely inspired on the migrations functionality of the Ruby on Rails
+framework.
+
+h2. Current limitations
+
+Be aware that the current version is still very alpha.
+
+There are only two database engines supported:
+* MySQL
+* SQLite
+
+In the current version, it's only possible to migrate up, it cannot (yet) remove
+already installed migrations.
+
+h2. Installing the extension
+
+h3. Putting the files in the right location
+
+Installing the extension is quite easy. Once you downloaded the files from 
+github, you need to put all the files in a folder called "yii-dbmigrations" and
+put it in the <code>protected/extensions</code> folder from your project.
+
+h3. Configuring the database connection
+
+You need to make sure you configure database access properly in the 
+configuration file of your project. As the console applications in the Yii
+framework look at the <code>protected/config/console.php</code> file, you need
+to make sure you configure the <code>db</code> settings under the
+<code>components</code> key in the configuration array. For MySQL, the 
+configuration will look as follows:
+
+<pre>
+'components' => array(
+    'db'=>array(
+        'class' => 'CDbConnection',
+        'connectionString'=>'mysql:host=localhost;dbname=my_db',
+        'charset' => 'UTF8',
+        'username'=>'root',
+        'password'=>'root',
+    ),
+),
+</pre>
+
+For SQLite, the configuration looks as follows:
+
+<pre>
+'components' => array(
+    'db'=>array(
+        'connectionString'=>'sqlite:'.dirname(__FILE__).'/../data/my_db.db',
+    ),
+),
+</pre>
+
+h3. Configuring the command map
+
+To make the <code>yiic</code> tool know about the <code>migrate</code> command,
+you need to add a <code>commandMap</code> key to the application configuration.
+
+In there, you need to put the following configuration:
+
+<pre>
+'commandMap' => array(
+    'migrate' => array(
+        'class'=>'application.extensions.yii-dbmigrations.CDbMigrationCommand',
+    ),
+),
+</pre>
+
+h3. Testing your installation
+
+To test if the installation was succesfull, you can run the yiic command and
+should see the following output:
+
+<pre>
+Yii command runner (based on Yii v1.0.6)
+Usage: protected/yiic <command-name> [parameters...]
+
+The following commands are available:
+ - migrate
+ - message
+ - shell
+ - webapp
+
+To see individual command help, use the following:
+   protected/yiic help <command-name>
+</pre>
+
+It should mention that the <code>migrate</code> command is available.
+
+h2. Creating migrations
+
+You can create migrations by creating files in the 
+<code>protected/migrations</code> folder. The file names for the migrations
+should follow a specific naming convention:
+
+<pre>
+m20090614213453_MigrationName.php
+</pre>
+
+The migration file names always start with the letter m followed by 14 digit
+timestamp and an underscore. After that, you can give a name to the migration so
+that you can easily identify the migration.
+
+In the migration file, you need to create a class that extends the parent class
+<code>CDbMigration</code>. The <code>CDbMigration</code> class needs to have the
+<code>up</code> and <code>down</code> methods as you can see in the following
+sample migration:
+
+<pre>
+class m20090611153243_CreateTables extends CDbMigration {
+
+    public function up() {
+
+        $this->createTable(
+            'posts',
+            array(
+                array('id', 'primary_key'),
+                array('title', 'string'),
+                array('body', 'text'),
+            )
+        );
+
+        $this->addIndex(
+            'posts', 'posts_title', array('title')
+        );
+
+    }
+
+    public function down() {
+        $this->removeTable('posts');
+    }
+
+}
+</pre>
+
+h2. Applying migrations
+
+Once you created the migrations, you can apply them to your database by running
+the <code>migrate</code> command:
+
+<pre>
+protected/yiic migrate
+</pre>
+
+You will see the following output:
+
+<pre>
+2009-06-14 21:42:04 Creating initial schema_version table
+2009-06-14 21:42:04 Applying migration: m20090611153243_CreateTables
+2009-06-14 21:42:04     >> Creating table: posts
+2009-06-14 21:42:04     >> Adding index posts_title to table: posts
+2009-06-14 21:42:04 Marking migration as applied: m20090611153243_CreateTables
+2009-06-14 21:42:04 Applying migration: m20090612162832_CreateTags
+2009-06-14 21:42:04     >> Creating table: tags
+2009-06-14 21:42:04     >> Creating table: post_tags
+2009-06-14 21:42:04     >> Adding index post_tags_post_tag to table: post_tags
+2009-06-14 21:42:04 Marking migration as applied: m20090612162832_CreateTags
+2009-06-14 21:42:04 Applying migration: m20090612163144_RenameTagsTable
+2009-06-14 21:42:04     >> Renaming table: post_tags to: post_tags_link_table
+2009-06-14 21:42:04 Marking migration as applied: m20090612163144_RenameTagsTable
+</pre>
+
+It will apply all the migrations found in the
+<code>protected/migrations</code> directory provided they were not applied to
+the database yet.
+
+If you run the <code>migrate</code> command again, it will show that the
+migrations were applied already:
+
+<pre>
+2009-06-14 21:44:09 Skipping applied migration: m20090611153243_CreateTables
+2009-06-14 21:44:09 Skipping applied migration: m20090612162832_CreateTags
+2009-06-14 21:44:09 Skipping applied migration: m20090612163144_RenameTagsTable
+</pre>
+
+h3. Author information
+
+This extension is created and maintained by Pieter Claerhout. You can contact
+the author on:
+
+* Website: http://www.yellowduck.be
+* Twitter: http://twitter.com/pieterclaerhout
+
