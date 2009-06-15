@@ -98,7 +98,8 @@ It should mention that the <code>migrate</code> command is available.
 h2. Creating migrations
 
 You can create migrations by creating files in the 
-<code>protected/migrations</code> folder. The file names for the migrations
+<code>protected/migrations</code> folder or in the <code>migrations</code>
+folder inside your module. The file names for the migrations
 should follow a specific naming convention:
 
 <pre>
@@ -108,6 +109,16 @@ m20090614213453_MigrationName.php
 The migration file names always start with the letter m followed by 14 digit
 timestamp and an underscore. After that, you can give a name to the migration so
 that you can easily identify the migration.
+
+If your migration is part of a module, it's a good idea to add the name of the
+module between the migration ID and name so that the name looks as follows:
+
+<pre>
+m20090614213453_ModuleName_MigrationName.php
+</pre>
+
+This will ensure that there is much less chance for naming conflicts between
+migrations in different modules.
 
 In the migration file, you need to create a class that extends the parent class
 <code>CDbMigration</code>. The <code>CDbMigration</code> class needs to have the
@@ -166,11 +177,18 @@ Marking migration as applied: m20090612162832_CreateTags
 Applying migration: m20090612163144_RenameTagsTable
     >> Renaming table: post_tags to: post_tags_link_table
 Marking migration as applied: m20090612163144_RenameTagsTable
+Applying migration: m20090616153243_Test_CreateTables
+    >> Creating table: test_pages
+    >> Adding index test_pages_title to table: test_pages
+Marking migration as applied: m20090616153243_Test_CreateTables
 </pre>
 
 It will apply all the migrations found in the
 <code>protected/migrations</code> directory provided they were not applied to
 the database yet.
+
+It will also apply any migrations found in the <code>migrations</code>
+directory inside each module which is enabled in the application.
 
 If you run the <code>migrate</code> command again, it will show that the
 migrations were applied already:
@@ -179,6 +197,7 @@ migrations were applied already:
 Skipping applied migration: m20090611153243_CreateTables
 Skipping applied migration: m20090612162832_CreateTags
 Skipping applied migration: m20090612163144_RenameTagsTable
+Skipping applied migration: m20090616153243_Test_CreateTables
 </pre>
 
 h3. Author information
