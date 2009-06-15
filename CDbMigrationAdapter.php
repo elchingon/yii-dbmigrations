@@ -50,11 +50,13 @@ abstract class CDbMigrationAdapter {
     }
     
     // Execute a raw SQL statement
+    // @todo We need to be able to bind parameters
     public function execute($query, $params=array()) {
         return $this->db->createCommand($query)->execute();
     }
     
     // Execute a raw SQL statement
+    // @todo We need to be able to bind parameters
     public function query($query, $params=array()) {
         return $this->db->createCommand($query)->queryAll();
     }
@@ -107,6 +109,7 @@ abstract class CDbMigrationAdapter {
     }
     
     // Rename a database column
+    // @todo We need to retain the column definition
     public function renameColumn($table, $name, $new_name) {
         $type = $this->columnInfo($name);
         $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' CHANGE '

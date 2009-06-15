@@ -116,6 +116,8 @@ It should mention that the <code>migrate</code> command is available.
 
 h2. Creating migrations
 
+h3. Naming conventions
+
 You can create migrations by creating files in the 
 <code>protected/migrations</code> folder or in the <code>migrations</code>
 folder inside your module. The file names for the migrations
@@ -138,6 +140,8 @@ m20090614213453_ModuleName_MigrationName.php
 
 This will ensure that there is much less chance for naming conflicts between
 migrations in different modules.
+
+h3. Implementing the migration
 
 In the migration file, you need to create a class that extends the parent class
 <code>CDbMigration</code>. The <code>CDbMigration</code> class needs to have the
@@ -170,6 +174,43 @@ class m20090611153243_CreateTables extends CDbMigration {
 
 }
 </pre>
+
+h3. Supported functionality
+
+In the migration class, you have the following functionality available:
+
+* execute: execute a raw SQL statement that doesn't return any data.
+* query: execute a raw SQL statement that returns data.
+* createTable: create a new table
+* renameTable: rename a table
+* removeTable: remove a table
+* addColumn: add a column to a table
+* renameColumn: rename a column in a table
+* changeColumn: change the definition of a column in a table
+* removeColumn: remove a column from a table
+* addIndex: add an index to the database or table
+* removeIndex: remove an index from the database or table
+
+When specifying fields, we also support a type mapping so that you can use
+generic type definitions instead of database specific type definitions. The
+following types are supported:
+
+* primary_key
+* string
+* text
+* integer
+* float
+* decimal
+* datetime
+* timestamp
+* time
+* date
+* binary
+* boolean
+* bool
+
+You can also specify a database specific type when defining a field, but this
+will make your migrations less portable across database engines.
 
 h2. Applying migrations
 
