@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * CDbMigrationAdapterMysql class file.
+ *
+ * @author Pieter Claerhout <pieter@yellowduck.be>
+ * @link http://github.com/pieterclaerhout/yii-dbmigrations/
+ * @copyright Copyright &copy; 2009 Pieter Claerhout
+ * @package dbmigrations
+ */
+
 class CDbMigrationAdapterMysql extends CDbMigrationAdapter {
     
     // Return a map of the native database types

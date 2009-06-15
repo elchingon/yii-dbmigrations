@@ -1,5 +1,14 @@
 <?php
 
+/**
+ * CDbMigration class file.
+ *
+ * @author Pieter Claerhout <pieter@yellowduck.be>
+ * @link http://github.com/pieterclaerhout/yii-dbmigrations/
+ * @copyright Copyright &copy; 2009 Pieter Claerhout
+ * @package dbmigrations
+ */
+
 class CDbMigrationException extends Exception {}
 
 // Class implementing a migration
