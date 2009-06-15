@@ -6,9 +6,11 @@
  * @author Pieter Claerhout <pieter@yellowduck.be>
  * @link http://github.com/pieterclaerhout/yii-dbmigrations/
  * @copyright Copyright &copy; 2009 Pieter Claerhout
- * @package dbmigrations
  */
 
+/**
+ *  @package extensions.yii-dbmigrations
+ */
 class CDbMigrationAdapterSqlite extends CDbMigrationAdapter {
     
     // Return a map of the native database types

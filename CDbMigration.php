@@ -6,12 +6,16 @@
  * @author Pieter Claerhout <pieter@yellowduck.be>
  * @link http://github.com/pieterclaerhout/yii-dbmigrations/
  * @copyright Copyright &copy; 2009 Pieter Claerhout
- * @package dbmigrations
  */
 
+/**
+ *  @package extensions.yii-dbmigrations
+ */
 class CDbMigrationException extends Exception {}
 
-// Class implementing a migration
+/**
+ *  @package extensions.yii-dbmigrations
+ */
 abstract class CDbMigration {
     
     // The adapter to use

@@ -6,7 +6,6 @@
  * @author Pieter Claerhout <pieter@yellowduck.be>
  * @link http://github.com/pieterclaerhout/yii-dbmigrations/
  * @copyright Copyright &copy; 2009 Pieter Claerhout
- * @package dbmigrations
  */
 
 /**
@@ -15,8 +14,17 @@
 Yii::import('application.extensions.yii-dbmigrations.adapters.*');
 
 /**
+ *  A database migration engine exception
+ *
+ *  @package extensions.yii-dbmigrations
+ */
+class CDbMigrationEngineException extends Exception {}
+
+/**
  *  The CDbMigrationEngine class is the actual engine that can do all the
  *  migrations related functionality.
+ *
+ *  @package extensions.yii-dbmigrations
  */
 class CDbMigrationEngine {
     
@@ -45,12 +53,7 @@ class CDbMigrationEngine {
             }
             
         } catch (Exception $e) {
-            
-            // Log the error
-            $this->log('-----');
-            $this->log('SOMETHING WENT TERRIBLY WRONG:');
-            $this->log($e->getMessage());
-            
+            $this->log('ERROR: ' . $e->getMessage());
         }
         
     }
@@ -61,6 +64,15 @@ class CDbMigrationEngine {
         // Add the migrations directory to the search path
         Yii::import('application.migrations.*');
         
+        // Check if a database connection was configured
+        try {
+            Yii::app()->db;
+        } catch (Exception $e) {
+            throw new CDbMigrationEngineException(
+                'Database configuration is missing in your configuration file.'
+            );
+        }
+        
         // Load the migration adapter
         switch (Yii::app()->db->driverName) {
             case 'mysql':
@@ -70,7 +82,7 @@ class CDbMigrationEngine {
                 $this->adapter = new CDbMigrationAdapterSqlite(Yii::app()->db);
                 break;
             default:
-                throw new CDbMigrationException(
+                throw new CDbMigrationEngineException(
                     'Database of type ' . Yii::app()->db->driverName
                     . ' does not support migrations (yet).'
                 );

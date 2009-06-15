@@ -6,10 +6,11 @@
  * @author Pieter Claerhout <pieter@yellowduck.be>
  * @link http://github.com/pieterclaerhout/yii-dbmigrations/
  * @copyright Copyright &copy; 2009 Pieter Claerhout
- * @package dbmigrations
  */
 
-// A database specific version of a migration adapter
+/**
+ *  @package extensions.yii-dbmigrations
+ */
 abstract class CDbMigrationAdapter {
     
     // The database connection
