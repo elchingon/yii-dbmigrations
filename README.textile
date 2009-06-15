@@ -153,19 +153,19 @@ protected/yiic migrate
 You will see the following output:
 
 <pre>
-2009-06-14 21:42:04 Creating initial schema_version table
-2009-06-14 21:42:04 Applying migration: m20090611153243_CreateTables
-2009-06-14 21:42:04     >> Creating table: posts
-2009-06-14 21:42:04     >> Adding index posts_title to table: posts
-2009-06-14 21:42:04 Marking migration as applied: m20090611153243_CreateTables
-2009-06-14 21:42:04 Applying migration: m20090612162832_CreateTags
-2009-06-14 21:42:04     >> Creating table: tags
-2009-06-14 21:42:04     >> Creating table: post_tags
-2009-06-14 21:42:04     >> Adding index post_tags_post_tag to table: post_tags
-2009-06-14 21:42:04 Marking migration as applied: m20090612162832_CreateTags
-2009-06-14 21:42:04 Applying migration: m20090612163144_RenameTagsTable
-2009-06-14 21:42:04     >> Renaming table: post_tags to: post_tags_link_table
-2009-06-14 21:42:04 Marking migration as applied: m20090612163144_RenameTagsTable
+Creating initial schema_version table
+Applying migration: m20090611153243_CreateTables
+    >> Creating table: posts
+    >> Adding index posts_title to table: posts
+Marking migration as applied: m20090611153243_CreateTables
+Applying migration: m20090612162832_CreateTags
+    >> Creating table: tags
+    >> Creating table: post_tags
+    >> Adding index post_tags_post_tag to table: post_tags
+Marking migration as applied: m20090612162832_CreateTags
+Applying migration: m20090612163144_RenameTagsTable
+    >> Renaming table: post_tags to: post_tags_link_table
+Marking migration as applied: m20090612163144_RenameTagsTable
 </pre>
 
 It will apply all the migrations found in the
@@ -176,9 +176,9 @@ If you run the <code>migrate</code> command again, it will show that the
 migrations were applied already:
 
 <pre>
-2009-06-14 21:44:09 Skipping applied migration: m20090611153243_CreateTables
-2009-06-14 21:44:09 Skipping applied migration: m20090612162832_CreateTags
-2009-06-14 21:44:09 Skipping applied migration: m20090612163144_RenameTagsTable
+Skipping applied migration: m20090611153243_CreateTables
+Skipping applied migration: m20090612162832_CreateTags
+Skipping applied migration: m20090612163144_RenameTagsTable
 </pre>
 
 h3. Author information

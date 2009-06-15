@@ -180,7 +180,7 @@ class CDbMigrationEngine {
     
     // Helper for logging a message
     protected function log($msg) {
-        echo(strftime('%Y-%m-%d %H:%M:%S') . ' ' . $msg . PHP_EOL);
+        echo($msg . PHP_EOL);
     }
     
 }
