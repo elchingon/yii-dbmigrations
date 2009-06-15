@@ -51,13 +51,11 @@ abstract class CDbMigrationAdapter {
     
     // Execute a raw SQL statement
     public function execute($query, $params=array()) {
-        //echo('SQL: ' . $query . PHP_EOL);
         return $this->db->createCommand($query)->execute();
     }
     
     // Execute a raw SQL statement
     public function query($query, $params=array()) {
-        //echo('SQL: ' . $query . PHP_EOL);
         return $this->db->createCommand($query)->queryAll();
     }
     
