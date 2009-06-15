@@ -32,9 +32,10 @@ class CDbMigrationEngine {
     private $adapter;
     
     // The name of the table and column for the schema information
-    const SCHEMA_TABLE = 'schema_version';
-    const SCHEMA_FIELD = 'id';
-    const SCHEMA_EXT   = 'php';
+    const SCHEMA_TABLE   = 'schema_version';
+    const SCHEMA_FIELD   = 'id';
+    const SCHEMA_EXT     = 'php';
+    const MIGRATIONS_DIR = 'migrations';
     
     // Run the specified command
     public function run($args) {
@@ -60,9 +61,6 @@ class CDbMigrationEngine {
     
     // Initialize the schema version table
     protected function init() {
-        
-        // Add the migrations directory to the search path
-        Yii::import('application.migrations.*');
         
         // Check if a database connection was configured
         try {
@@ -133,31 +131,86 @@ class CDbMigrationEngine {
     
     // Get the list of possible migrations
     protected function getPossibleMigrations() {
-        $migrations = CFileHelper::findFiles(
-            Yii::app()->basePath . '/migrations',
-            array('fileTypes' => array(self::SCHEMA_EXT), 'level' => 0)
-        );
-        foreach ($migrations as $key=>$migration) {
-            $migrations[$key] = basename($migration, '.' . self::SCHEMA_EXT);
+        
+        // Get the migrations for the default application
+        $migrations = $this->getPossibleMigrationsForModule();
+        
+        // Get the migrations for each installed and enabled module
+        foreach (Yii::app()->modules as $module => $moduleData) {
+            $migrations = array_merge(
+                $migrations, $this->getPossibleMigrationsForModule($module)
+            );
         }
+        
+        // Sort them based on the file path (which is the key in the array)
+        ksort($migrations);
+        
+        // Returh the list of migrations
         return $migrations;
+        
+    }
+    
+    // Get the list of migrations for a specific module
+    protected function getPossibleMigrationsForModule($module=null) {
+        
+        // Get the path to the migrations dir
+        $path = Yii::app()->basePath;
+        if (!empty($module)) {
+            $path .= '/modules/' . trim($module, '/');
+        }
+        $path .= '/' . self::MIGRATIONS_DIR;
+        
+        // Start with an empty list
+        $migrations = array();
+        
+        // Construct the list of migrations
+        $migrationFiles = CFileHelper::findFiles(
+            $path, array('fileTypes' => array(self::SCHEMA_EXT), 'level' => 0)
+        );
+        foreach ($migrationFiles as $migration) {
+            $migrations[$migration] = basename(
+                $migration, '.' . self::SCHEMA_EXT
+            );
+        }
+        
+        // Return the list
+        return $migrations;
+        
     }
     
     // Apply the migrations
     protected function applyMigrations() {
+        
+        // Get the list of applied and possible migrations
         $applied = $this->getAppliedMigrations();
         $possible = $this->getPossibleMigrations();
         
-        foreach ($possible as $migration) {
+        // Loop over all possible migrations
+        foreach ($possible as $migrationFile => $migration) {
+            
+            // Include the migration file
+            require($migrationFile);
+            
+            // Create the migration instance
             $migration = new $migration($this->adapter);
+            
+            // Check if it's already applied to the database
             if (!in_array($migration->getId(), $applied)) {
+                
+                // Apply the migration to the database
                 $this->applyMigration($migration);
+                
             } else {
+                
+                // Skip the already applied migration
                 echo(
                     'Skipping applied migration: ' . get_class($migration) . PHP_EOL
                 );
+                
             }
+
         }
+
     }
     
     // Apply a specific migration
@@ -170,7 +223,9 @@ class CDbMigrationEngine {
         $migration->up();
         
         // Commit the migration
-        echo('Marking migration as applied: ' . get_class($migration) . PHP_EOL);
+        echo(
+            'Marking migration as applied: ' . get_class($migration) . PHP_EOL
+        );
         $cmd = Yii::app()->db->commandBuilder->createInsertCommand(
             self::SCHEMA_TABLE,
             array(self::SCHEMA_FIELD => $migration->getId())
