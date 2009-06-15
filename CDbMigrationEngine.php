@@ -163,14 +163,20 @@ class CDbMigrationEngine {
         // Start with an empty list
         $migrations = array();
         
-        // Construct the list of migrations
-        $migrationFiles = CFileHelper::findFiles(
-            $path, array('fileTypes' => array(self::SCHEMA_EXT), 'level' => 0)
-        );
-        foreach ($migrationFiles as $migration) {
-            $migrations[$migration] = basename(
-                $migration, '.' . self::SCHEMA_EXT
+        // Check if the migrations directory actually exists
+        if (is_dir($path)) {
+            
+            // Construct the list of migrations
+            $migrationFiles = CFileHelper::findFiles(
+                $path,
+                array('fileTypes' => array(self::SCHEMA_EXT), 'level' => 0)
             );
+            foreach ($migrationFiles as $migration) {
+                $migrations[$migration] = basename(
+                    $migration, '.' . self::SCHEMA_EXT
+                );
+            }
+            
         }
         
         // Return the list
