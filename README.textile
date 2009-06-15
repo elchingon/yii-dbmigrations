@@ -9,6 +9,25 @@ database engine.
 It's largely inspired on the migrations functionality of the Ruby on Rails
 framework.
 
+h2. Why bother in the first place?
+
+You might wonder why you need database migrations in the first place. Sure, you
+could use plain SQL files to apply updates to the database, but they have a big
+disadvantage: they are database specific.
+
+Imagine you initially create your database using SQLite and later on decide to
+change to MySQL. When you use plain SQL files, you will need to rewrite them
+using MySQL's flavor of SQL. Also, you will need to create some tool that knows
+what has been applied already to the database and what's not applied yet.
+
+Meet database migrations. By defining a higher level interface to creating and
+maintaining the database schema, you can define it in a database agnostic way.
+
+By using PHP functions to create tables, indexes, fields, ... you can write the
+schema once and apply it to any database backend supported. The added bonus is
+that the yii-dbmigrations extension keeps track of which migrations have been
+applied already and which ones still need to be applied.
+
 h2. Current limitations
 
 Be aware that the current version is still very alpha.
@@ -200,7 +219,11 @@ Skipping applied migration: m20090612163144_RenameTagsTable
 Skipping applied migration: m20090616153243_Test_CreateTables
 </pre>
 
-h3. Author information
+Since the <code>migrate</code> command checks based on the ID of each migration,
+it can detect that a migration is already applied to the database and therefor
+doesn't need to be applied anymore.
+
+h2. Author information
 
 This extension is created and maintained by Pieter Claerhout. You can contact
 the author on:
