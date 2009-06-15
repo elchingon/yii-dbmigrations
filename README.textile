@@ -1,60 +1,41 @@
 h1. Yii DB Migrations
 
-A database migrations engine for the Yii framework. It comes in the form of an
-extension which can be dropped into any existing Yii framework application.
+A database migrations engine for the Yii framework. It comes in the form of  an extension which can be dropped into any existing Yii framework application.
 
-It relies on the database abstraction layer of the Yii framework to talk to the
-database engine.
+It relies on the database abstraction layer of the Yii framework to talk to the database engine.
 
-It's largely inspired on the migrations functionality of the Ruby on Rails
-framework.
+It's largely inspired on the migrations functionality of the Ruby on Rails framework.
 
 h2. Why bother in the first place?
 
-You might wonder why you need database migrations in the first place. Sure, you
-could use plain SQL files to apply updates to the database, but they have a big
-disadvantage: they are database specific.
+You might wonder why you need database migrations in the first place. Sure, you could use plain SQL files to apply updates to the database, but they have a big disadvantage: they are database specific.
 
-Imagine you initially create your database using SQLite and later on decide to
-change to MySQL. When you use plain SQL files, you will need to rewrite them
-using MySQL's flavor of SQL. Also, you will need to create some tool that knows
-what has been applied already to the database and what's not applied yet.
+Imagine you initially create your database using SQLite and later on decide to change to MySQL. When you use plain SQL files, you will need to rewrite them using MySQL's flavor of SQL. Also, you will need to create some tool that knows what has been applied already to the database and what's not applied yet.
 
-Meet database migrations. By defining a higher level interface to creating and
-maintaining the database schema, you can define it in a database agnostic way.
+Meet database migrations. By defining a higher level interface to creating and maintaining the database schema, you can define it in a database agnostic way.
 
-By using PHP functions to create tables, indexes, fields, ... you can write the
-schema once and apply it to any database backend supported. The added bonus is
-that the yii-dbmigrations extension keeps track of which migrations have been
-applied already and which ones still need to be applied.
+By using PHP functions to create tables, indexes, fields, ... you can write the schema once and apply it to any database backend supported. The added bonus is that the yii-dbmigrations extension keeps track of which migrations have been applied already and which ones still need to be applied.
 
 h2. Current limitations
 
 Be aware that the current version is still very alpha.
 
 There are only two database engines supported:
+
 * MySQL
 * SQLite
 
-In the current version, it's only possible to migrate up, it cannot (yet) remove
-already installed migrations.
+In the current version, it's only possible to migrate up, it cannot (yet) remove already installed migrations.
 
 h2. Installing the extension
 
 h3. Putting the files in the right location
 
-Installing the extension is quite easy. Once you downloaded the files from 
-github, you need to put all the files in a folder called "yii-dbmigrations" and
-put it in the <code>protected/extensions</code> folder from your project.
+Installing the extension is quite easy. Once you downloaded the files from github, you need to put all the files in a folder called "yii-dbmigrations" and put it in the <code>protected/extensions</code> folder from your project.
 
 h3. Configuring the database connection
 
-You need to make sure you configure database access properly in the 
-configuration file of your project. As the console applications in the Yii
-framework look at the <code>protected/config/console.php</code> file, you need
-to make sure you configure the <code>db</code> settings under the
-<code>components</code> key in the configuration array. For MySQL, the 
-configuration will look as follows:
+You need to make sure you configure database access properly in the configuration file of your project. As the console applications in the Yii framework look at the <code>protected/config/console.php</code> file, you need to make sure you configure the <code>db</code> settings under the <code>components</code> key in the configuration array. For MySQL, the configuration will look as follows:
 
 <pre>
 'components' => array(
@@ -80,8 +61,7 @@ For SQLite, the configuration looks as follows:
 
 h3. Configuring the command map
 
-To make the <code>yiic</code> tool know about the <code>migrate</code> command,
-you need to add a <code>commandMap</code> key to the application configuration.
+To make the <code>yiic</code> tool know about the <code>migrate</code> command, you need to add a <code>commandMap</code> key to the application configuration.
 
 In there, you need to put the following configuration:
 
@@ -95,8 +75,7 @@ In there, you need to put the following configuration:
 
 h3. Testing your installation
 
-To test if the installation was succesfull, you can run the yiic command and
-should see the following output:
+To test if the installation was succesfull, you can run the yiic command and should see the following output:
 
 <pre>
 Yii command runner (based on Yii v1.0.6)
@@ -118,35 +97,25 @@ h2. Creating migrations
 
 h3. Naming conventions
 
-You can create migrations by creating files in the 
-<code>protected/migrations</code> folder or in the <code>migrations</code>
-folder inside your module. The file names for the migrations
-should follow a specific naming convention:
+You can create migrations by creating files in the <code>protected/migrations</code> folder or in the <code>migrations</code> folder inside your module. The file names for the migrations should follow a specific naming convention:
 
 <pre>
 m20090614213453_MigrationName.php
 </pre>
 
-The migration file names always start with the letter m followed by 14 digit
-timestamp and an underscore. After that, you can give a name to the migration so
-that you can easily identify the migration.
+The migration file names always start with the letter m followed by 14 digit timestamp and an underscore. After that, you can give a name to the migration so that you can easily identify the migration.
 
-If your migration is part of a module, it's a good idea to add the name of the
-module between the migration ID and name so that the name looks as follows:
+If your migration is part of a module, it's a good idea to add the name of the module between the migration ID and name so that the name looks as follows:
 
 <pre>
 m20090614213453_ModuleName_MigrationName.php
 </pre>
 
-This will ensure that there is much less chance for naming conflicts between
-migrations in different modules.
+This will ensure that there is much less chance for naming conflicts between migrations in different modules.
 
 h3. Implementing the migration
 
-In the migration file, you need to create a class that extends the parent class
-<code>CDbMigration</code>. The <code>CDbMigration</code> class needs to have the
-<code>up</code> and <code>down</code> methods as you can see in the following
-sample migration:
+In the migration file, you need to create a class that extends the parent class <code>CDbMigration</code>. The <code>CDbMigration</code> class needs to have the <code>up</code> and <code>down</code> methods as you can see in the following sample migration:
 
 <pre>
 class m20090611153243_CreateTables extends CDbMigration {
@@ -191,9 +160,7 @@ In the migration class, you have the following functionality available:
 * addIndex: add an index to the database or table
 * removeIndex: remove an index from the database or table
 
-When specifying fields, we also support a type mapping so that you can use
-generic type definitions instead of database specific type definitions. The
-following types are supported:
+When specifying fields, we also support a type mapping so that you can use generic type definitions instead of database specific type definitions. The following types are supported:
 
 * primary_key
 * string
@@ -209,13 +176,11 @@ following types are supported:
 * boolean
 * bool
 
-You can also specify a database specific type when defining a field, but this
-will make your migrations less portable across database engines.
+You can also specify a database specific type when defining a field, but this will make your migrations less portable across database engines.
 
 h2. Applying migrations
 
-Once you created the migrations, you can apply them to your database by running
-the <code>migrate</code> command:
+Once you created the migrations, you can apply them to your database by running the <code>migrate</code> command:
 
 <pre>
 protected/yiic migrate
@@ -243,15 +208,11 @@ Applying migration: m20090616153243_Test_CreateTables
 Marking migration as applied: m20090616153243_Test_CreateTables
 </pre>
 
-It will apply all the migrations found in the
-<code>protected/migrations</code> directory provided they were not applied to
-the database yet.
+It will apply all the migrations found in the <code>protected/migrations</code> directory provided they were not applied to the database yet.
 
-It will also apply any migrations found in the <code>migrations</code>
-directory inside each module which is enabled in the application.
+It will also apply any migrations found in the <code>migrations</code> directory inside each module which is enabled in the application.
 
-If you run the <code>migrate</code> command again, it will show that the
-migrations were applied already:
+If you run the <code>migrate</code> command again, it will show that the migrations were applied already:
 
 <pre>
 Skipping applied migration: m20090611153243_CreateTables
@@ -260,14 +221,11 @@ Skipping applied migration: m20090612163144_RenameTagsTable
 Skipping applied migration: m20090616153243_Test_CreateTables
 </pre>
 
-Since the <code>migrate</code> command checks based on the ID of each migration,
-it can detect that a migration is already applied to the database and therefor
-doesn't need to be applied anymore.
+Since the <code>migrate</code> command checks based on the ID of each migration, it can detect that a migration is already applied to the database and therefor doesn't need to be applied anymore.
 
 h2. Author information
 
-This extension is created and maintained by Pieter Claerhout. You can contact
-the author on:
+This extension is created and maintained by Pieter Claerhout. You can contact the author on:
 
 * Website: http://www.yellowduck.be
 * Twitter: http://twitter.com/pieterclaerhout
