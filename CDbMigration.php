@@ -34,11 +34,6 @@ abstract class CDbMigration {
     public function down() {
     }
     
-    // Helper for logging a message
-    protected function log($msg) {
-        echo(strftime('%Y-%m-%d %H:%M:%S') . ' ' . $msg . PHP_EOL);
-    }
-    
     // Get the id of the migration
     public function getId() {
         $id = split('_', get_class($this));
@@ -63,63 +58,63 @@ abstract class CDbMigration {
     
     // Create a table
     protected function createTable($name, $columns=array(), $options=null) {
-        $this->log('    >> Creating table: ' . $name);
+        echo('    >> Creating table: ' . $name . PHP_EOL);
         return $this->adapter->createTable($name, $columns, $options);
     }
     
     // Rename a table
     protected function renameTable($name, $new_name) {
-        $this->log('    >> Renaming table: ' . $name . ' to: ' . $new_name);
+        echo('    >> Renaming table: ' . $name . ' to: ' . $new_name . PHP_EOL);
         return $this->adapter->renameTable($name, $new_name);
     }
     
     // Drop a table
     protected function removeTable($name) {
-        $this->log('    >> Removing table: ' . $name);
+        echo('    >> Removing table: ' . $name . PHP_EOL);
         return $this->adapter->removeTable($name);
     }
     
     // Add a database column
     protected function addColumn($table, $column, $type, $options=null) {
-        $this->log('    >> Adding column ' . $column . ' to table: ' . $table);
+        echo('    >> Adding column ' . $column . ' to table: ' . $table . PHP_EOL);
         return $this->adapter->addColumn($table, $column, $type, $options);
     }
     
     // Rename a database column
     protected function renameColumn($table, $name, $new_name) {
-        $this->log(
+        echo(
             '    >> Renaming column ' . $name . ' to: ' . $new_name
-            . ' in table: ' . $table
+            . ' in table: ' . $table . PHP_EOL
         );
         return $this->adapter->renameColumn($table, $name, $new_name);
     }
     
     // Change a database column
     protected function changeColumn($table, $column, $type, $options=null) {
-        $this->log(
+        echo(
             '    >> Chaning column ' . $name . ' to: ' . $type
-            . ' in table: ' . $table
+            . ' in table: ' . $table . PHP_EOL
         );
         return $this->adapter->changeColumn($table, $column, $type, $options);
     }
     
     // Remove a column
     protected function removeColumn($table, $column) {
-        $this->log(
-            '    >> Removing column ' . $column . ' from table: ' . $table
+        echo(
+            '    >> Removing column ' . $column . ' from table: ' . $table . PHP_EOL
         );
         return $this->adapter->removeColumn($table, $column);
     }
     
     // Add an index
     public function addIndex($table, $name, $columns, $unique=false) {
-        $this->log('    >> Adding index ' . $name . ' to table: ' . $table);
+        echo('    >> Adding index ' . $name . ' to table: ' . $table . PHP_EOL);
         return $this->adapter->addIndex($table, $name, $columns, $unique);
     }
     
     // Remove an index
     protected function removeIndex($table, $column) {
-        $this->log('    >> Removing index ' . $name . ' from table: ' . $table);
+        echo('    >> Removing index ' . $name . ' from table: ' . $table . PHP_EOL);
         return $this->adapter->removeIndex($table, $column);
     }
     

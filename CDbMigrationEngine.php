@@ -53,7 +53,7 @@ class CDbMigrationEngine {
             }
             
         } catch (Exception $e) {
-            $this->log('ERROR: ' . $e->getMessage());
+            echo('ERROR: ' . $e->getMessage() . PHP_EOL);
         }
         
     }
@@ -92,7 +92,7 @@ class CDbMigrationEngine {
         if (Yii::app()->db->schema->getTable('schema_version') == null) {
             
             // Create the table
-            $this->log('Creating initial schema_version table');
+            echo('Creating initial schema_version table' . PHP_EOL);
             
             // Use the adapter to create the table
             $this->adapter->createTable(
@@ -153,8 +153,8 @@ class CDbMigrationEngine {
             if (!in_array($migration->getId(), $applied)) {
                 $this->applyMigration($migration);
             } else {
-                $this->log(
-                    'Skipping applied migration: ' . get_class($migration)
+                echo(
+                    'Skipping applied migration: ' . get_class($migration) . PHP_EOL
                 );
             }
         }
@@ -164,23 +164,18 @@ class CDbMigrationEngine {
     protected function applyMigration($migration) {
         
         // Apply the migration
-        $this->log('Applying migration: ' . get_class($migration));
+        echo('Applying migration: ' . get_class($migration) . PHP_EOL);
         
         // Create the migration instance
         $migration->up();
         
         // Commit the migration
-        $this->log('Marking migration as applied: ' . get_class($migration));
+        echo('Marking migration as applied: ' . get_class($migration) . PHP_EOL);
         $cmd = Yii::app()->db->commandBuilder->createInsertCommand(
             self::SCHEMA_TABLE,
             array(self::SCHEMA_FIELD => $migration->getId())
         )->execute();
         
-    }
-    
-    // Helper for logging a message
-    protected function log($msg) {
-        echo($msg . PHP_EOL);
     }
     
 }
