@@ -28,16 +28,22 @@ class CDbMigrationEngineException extends Exception {}
  */
 class CDbMigrationEngine {
     
-    // The migration adapter to use
+    /**
+     *  The migration adapter to use
+     */
     private $adapter;
     
-    // The name of the table and column for the schema information
+    /**
+     *  The name of the table and column for the schema information
+     */
     const SCHEMA_TABLE   = 'schema_version';
     const SCHEMA_FIELD   = 'id';
     const SCHEMA_EXT     = 'php';
     const MIGRATIONS_DIR = 'migrations';
     
-    // Run the specified command
+    /**
+     *  Run the specified command
+     */
     public function run($args) {
         
         // Catch errors
@@ -59,7 +65,9 @@ class CDbMigrationEngine {
         
     }
     
-    // Initialize the schema version table
+    /**
+     *  Initialize the schema version table
+     */
     protected function init() {
         
         // Check if a database connection was configured
@@ -112,7 +120,9 @@ class CDbMigrationEngine {
         
     }
     
-    // Get the list of migrations that are applied to the database
+    /**
+     *  Get the list of migrations that are applied to the database
+     */
     protected function getAppliedMigrations() {
         
         // Get the field and table name
@@ -129,7 +139,9 @@ class CDbMigrationEngine {
                 
     }
     
-    // Get the list of possible migrations
+    /**
+     *  Get the list of possible migrations
+     */
     protected function getPossibleMigrations() {
         
         // Get the migrations for the default application
@@ -150,7 +162,9 @@ class CDbMigrationEngine {
         
     }
     
-    // Get the list of migrations for a specific module
+    /**
+     *  Get the list of migrations for a specific module
+     */
     protected function getPossibleMigrationsForModule($module=null) {
         
         // Get the path to the migrations dir
@@ -184,7 +198,9 @@ class CDbMigrationEngine {
         
     }
     
-    // Apply the migrations
+    /**
+     *  Apply the migrations
+     */
     protected function applyMigrations() {
         
         // Get the list of applied and possible migrations
@@ -219,7 +235,9 @@ class CDbMigrationEngine {
 
     }
     
-    // Apply a specific migration
+    /**
+     *  Apply a specific migration
+     */
     protected function applyMigration($migration) {
         
         // Apply the migration

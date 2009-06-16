@@ -13,15 +13,21 @@
  */
 abstract class CDbMigrationAdapter {
     
-    // The database connection
+    /**
+     *  The database connection
+     */
     public $db;
     
-    // Constructor
+    /**
+     *  Class Constructor
+     */
     public function __construct(CDbConnection $db) {
         $this->db = $db;
     }
     
-    // Convert a type to a native database type
+    /**
+     *  Convert a type to a native database type
+     */
     protected function convertToNativeType($theType) {
         if (isset($this->nativeDatabaseTypes[$theType])) {
             return $this->nativeDatabaseTypes[$theType];
@@ -30,7 +36,9 @@ abstract class CDbMigrationAdapter {
         }
     }
     
-    // Convert the field information to native types
+    /**
+     *  Convert the field information to native types
+     */
     protected function convertFields($fields) {
         $result = array();
         foreach ($fields as $field) {
@@ -49,23 +57,48 @@ abstract class CDbMigrationAdapter {
         return join(', ', $result);
     }
     
-    // Execute a raw SQL statement
-    // @todo We need to be able to bind parameters
+    /**
+     *  With the execute function, you can execute a raw SQL query against the
+     *  database. The SQL query should be one that doesn't return any data.
+     *
+     *  @param $query The SQL query to execute.
+     *  @param $params The parameters to pass to the SQL query.
+     *
+     *  @returns The number of affected rows.
+     */
     public function execute($query, $params=array()) {
         return $this->db->createCommand($query)->execute();
     }
     
-    // Execute a raw SQL statement
-    // @todo We need to be able to bind parameters
+    /**
+     *  With the execute function, you can execute a raw SQL query against the
+     *  database. The SQL query should be one that returns data.
+     *
+     *  @param $query The SQL query to execute.
+     *  @param $params The parameters to pass to the SQL query.
+     *
+     *  @returns The rows returned from the database.
+     */
     public function query($query, $params=array()) {
         return $this->db->createCommand($query)->queryAll();
     }
     
-    // Get the column info
-    public function columnInfo($name) {
+    /**
+     *  Retrieve the type information from a database column.
+     *
+     *  @todo Still to be implemented.
+     */
+    public function columnInfo($table, $name) {
     }
     
-    // Create a table
+    /**
+     *  The createTable function allows you to create a new table in the
+     *  database.
+     *
+     *  @param $name    The name of the table to create.
+     *  @param $column  The column definition for the database table
+     *  @param $options The extra options to pass to the database creation.
+     */
     public function createTable($name, $columns=array(), $options=null) {
         $sql = 'CREATE TABLE ' . $this->db->quoteTableName($name) . ' ('
              . $this->convertFields($columns)
@@ -73,20 +106,31 @@ abstract class CDbMigrationAdapter {
         return $this->execute($sql);
     }
     
-    // Rename a table
+    /**
+     *  Rename a table.
+     *
+     *  @param $name     The name of the table to rename.
+     *  @param $new_name The new name for the table.
+     */
     public function renameTable($name, $new_name) {
         $sql = 'RENAME TABLE ' . $this->db->quoteTableName($name) . ' TO '
              . $this->db->quoteTableName($new_name);
         return $this->execute($sql);
     }
     
-    // Drop a table
+    /**
+     *  Remove a table from the database.
+     *
+     *  @param $name The name of the table to remove.
+     */
     public function removeTable($name) {
         $sql = 'DROP TABLE ' . $this->db->quoteTableName($name);
         return $this->execute($sql);
     }
     
-    // Add a database column
+    /**
+     *  Add a database column
+     */
     public function addColumn($table, $column, $type, $options=null) {
         $type = $this->convertToNativeType($type);
         if (empty($options)) {
@@ -98,7 +142,9 @@ abstract class CDbMigrationAdapter {
         return $this->execute($sql);
     }
     
-    // Change a database column
+    /**
+     *  Change a database column
+     */
     public function changeColumn($table, $column, $type, $options=null) {
         $type = $this->convertToNativeType($type);
         $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' CHANGE '
@@ -108,24 +154,34 @@ abstract class CDbMigrationAdapter {
         return $this->execute($sql);
     }
     
-    // Rename a database column
-    // @todo We need to retain the column definition
+    /**
+     *  Rename a database column
+     *
+     *  @todo We need to retain the column definition
+     */
     public function renameColumn($table, $name, $new_name) {
-        $type = $this->columnInfo($name);
+        $type = $this->columnInfo($table, $name);
         $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' CHANGE '
              . $this->db->quoteColumnName($name) . ' '
              . $this->db->quoteColumnName($new_name) . ' ' . $type;
         return $this->execute($sql);
     }
     
-    // Remove a column
+    /**
+     *  Remove a table column from the database.
+     *
+     *  @param $table  The name of the table to remove the column from.
+     *  @param $column The name of the table column to remove.
+     */
     public function removeColumn($table, $column) {
         $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' DROP '
              . $this->db->quoteColumnName($column);
         return $this->execute($sql);
     }
     
-    // Add an index
+    /**
+     *  Add an index
+     */
     public function addIndex($table, $name, $columns, $unique=false) {
         $sql = 'CREATE ';
         $sql .= ($unique) ? 'UNIQUE ' : '';
@@ -136,7 +192,12 @@ abstract class CDbMigrationAdapter {
         return $this->execute($sql);
     }
     
-    // Remove an index
+    /**
+     *  Remove a table index from the database.
+     *
+     *  @param $table  The name of the table to remove the index from.
+     *  @param $column The name of the table index to remove.
+     */
     public function removeIndex($table, $name) {
         $sql = 'DROP INDEX ' . $this->db->quoteTableName($name) . ' ON '
              . $this->db->quoteTableName($table);
