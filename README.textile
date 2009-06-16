@@ -1,6 +1,6 @@
 h1. Yii DB Migrations
 
-A database migrations engine for the Yii framework. It comes in the form of  an extension which can be dropped into any existing Yii framework application.
+A database migrations engine for the "Yii framework":http://www.yiiframework.com. It comes in the form of  an extension which can be dropped into any existing Yii framework application.
 
 It relies on the database abstraction layer of the Yii framework to talk to the database engine.
 
@@ -227,6 +227,6 @@ h2. Author information
 
 This extension is created and maintained by Pieter Claerhout. You can contact the author on:
 
-* Website: http://www.yellowduck.be
-* Twitter: http://twitter.com/pieterclaerhout
-* Github: http://github.com/pieterclaerhout/yii-dbmigrations/tree/master
+* Website: "http://www.yellowduck.be":http://www.yellowduck.be
+* Twitter: "http://twitter.com/pieterclaerhout":http://twitter.com/pieterclaerhout
+* Github: "http://github.com/pieterclaerhout/yii-dbmigrations/tree/master":http://github.com/pieterclaerhout/yii-dbmigrations/tree/master
