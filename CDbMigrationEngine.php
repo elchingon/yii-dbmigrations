@@ -226,7 +226,7 @@ class CDbMigrationEngine {
         echo('Applying migration: ' . get_class($migration) . PHP_EOL);
         
         // Create the migration instance
-        $migration->up();
+        $migration->performTransactional('up');
         
         // Commit the migration
         echo(

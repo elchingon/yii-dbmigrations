@@ -26,6 +26,28 @@ abstract class CDbMigration {
         $this->adapter = $adapter;
     }
     
+    // Perform a command transactional
+    public function performTransactional($command) {
+        
+        // Check if the command exists
+        if (!method_exists($this, $command)) {
+            throw new CDbMigrationException(
+                'Invalid migration command: ' . $command
+            );
+        }
+        
+        // Run the command inside a transaction
+        $transaction = $this->adapter->db->beginTransaction();
+        try {
+            $this->$command();
+            $transaction->commit();
+        } catch (Exception $e) {
+            $transaction->rollback();
+        }
+        
+        
+    }
+    
     // Migrate up
     public function up() {
     }
