@@ -274,61 +274,124 @@ class CDbMigrationEngine {
     protected function applyMigrations($version='') {
         
         // Get the list of applied and possible migrations
-        $applied = $this->getAppliedMigrations();
+        $applied  = $this->getAppliedMigrations();
         $possible = $this->getPossibleMigrations();
         
-        // Check what needs to happen
-        if ($version == 'down') {
+        // Check what which action need to happen
+        if ($version == 'list') {
             
-            // Check if there are any applied migrations
-            if (sizeof($applied) == 0) {
-                throw new CDbMigrationEngineException(
-                    'No migrations are applied to the database yet.'
+            // List the status of all migrations
+            foreach ($possible as $id => $specs) {
+                if (in_array($id, $applied)) {
+                    echo('Applied:     ' . $specs['class'] . PHP_EOL);
+                } else {
+                    echo('Not Applied: ' . $specs['class'] . PHP_EOL);
+                }
+            }
+            
+        } elseif ($version == 'down') {
+            
+            // Get the last migration
+            $migration = array_pop($applied);
+            
+            // Apply the migration
+            if ($migration) {
+                $this->applyMigration(
+                    $possible[$migration]['class'],
+                    $possible[$migration]['file'],
+                    'down'
                 );
             }
             
-            // Get the last applied migration
-            $lastMigration = array_pop($applied);
+        } elseif ($version == 'up') {
             
-            // Get the details
-            $migration = $this->createMigration(
-                $possible[$lastMigration]['class'],
-                $possible[$lastMigration]['file']
-            );
-            
-            // Apply the migration
-            $this->applyMigration($migration, 'down');
-            
-            // Return
-            return;
-            
-        }
-        
-        // We are updating one or more revisions
-        if (empty($version) || $version == 'up') {
-            
-            // Loop over all possible migrations
-            foreach ($possible as $migrationId => $migrationSpecs) {
+            // Check if there are still versions to apply
+            foreach ($possible as $id => $specs) {
                 
-                // Include the migration file
-                require_once($migrationSpecs['file']);
-                
-                // Create the migration instance
-                $migration = $this->createMigration(
-                    $migrationSpecs['class'], $migrationSpecs['file']
-                );
-                
-                // Check if it's already applied to the database
-                if (!in_array($migration->getId(), $applied)) {
-                
-                    // Apply the migration to the database
-                    $this->applyMigration($migration);
+                // Check if it's applied or not
+                if (!in_array($id, $applied)) {
                     
-                    // If we do up, we stop after the first one
-                    if ($version == 'up') {
+                    // Apply it
+                    $this->applyMigration(
+                        $specs['class'], $specs['file'], 'up'
+                    );
+                    
+                    // Exit the loop
+                    break;
+                    
+                }
+                
+            }
+            
+        } elseif (!empty($version)) {
+            
+            // Check if it's a valid version number
+            if (!isset($possible[$version])) {
+                throw new CDbMigrationEngineException(
+                    'Invalid migration: ' . $version
+                );
+            }
+            
+            // Check if we need to go up or down
+            if (in_array($version, $applied)) {
+                
+                // Reverse loop over the possible migrations
+                foreach (array_reverse($possible, true) as $id => $specs) {
+                    
+                    // If we reached the correct version, exit the loop
+                    if ($id == $version) {
                         break;
                     }
+                    
+                    // Check if it's applied or not
+                    if (in_array($id, $applied)) {
+                        
+                        // Remove the migration
+                        $this->applyMigration(
+                            $specs['class'], $specs['file'], 'down'
+                        );
+                    
+                    }
+                    
+                }
                 
+            } else {
+                
+                // Loop over all possible migrations
+                foreach ($possible as $id => $specs) {
+                    
+                    // Check if it's applied or not
+                    if (!in_array($id, $applied)) {
+                        
+                        // Apply it
+                        $this->applyMigration(
+                            $specs['class'], $specs['file'], 'up'
+                        );
+                        
+                        // If we applied the requested migration, exit the loop
+                        if ($id == $version) {
+                            break;
+                        }
+                    
+                    }
+            
+                }
+                
+            }
+            
+        } else {
+            
+            // Loop over all possible migrations
+            foreach ($possible as $id => $specs) {
+                
+                // Check if it's applied or not
+                if (!in_array($id, $applied)) {
+                    
+                    // Apply it
+                    $this->applyMigration(
+                        $specs['class'], $specs['file'], 'up'
+                    );
+                    
                 }
             
             }
@@ -338,35 +401,26 @@ class CDbMigrationEngine {
     }
     
     /**
-     *  This function creates a migration instance.
+     *  Apply a specific migration based on the migration name.
      *
-     *  @param $id   The ID of the migration.
-     *  @param $file The file in which the migration exists
+     *  @param $class     The class name of the migration to apply.
+     *  @param $file      The file in which you can find the migration.
+     *  @param $direction The direction in which the migration needs to be
+     *                    applied. Needs to be "up" or "down".
      */
-    protected function createMigration($class, $file) {
+    protected function applyMigration($class, $file, $direction='up') {
         
         // Include the migration file
         require_once($file);
         
-        // Create the migration instance
-        return new $class($this->adapter);
-
-    }
-    
-    /**
-     *  Apply a specific migration based on the migration name.
-     *
-     *  @param $migration The name of the migration to apply.
-     *  @param $direction The direction in which the migration needs to be
-     *                    applied. Needs to be "up" or "down".
-     */
-    protected function applyMigration($migration, $direction='up') {
+        // Create the migration
+        $migration = new $class($this->adapter);
         
         // Apply the migration
         if ($direction == 'up') {
-            echo('Applying migration: ' . get_class($migration) . PHP_EOL);
+            echo('Applying migration: ' . $class . PHP_EOL);
         } else {
-            echo('Removing migration: ' . get_class($migration) . PHP_EOL);
+            echo('Removing migration: ' . $class . PHP_EOL);
         }
         
         // Perform the migration function transactional
@@ -375,7 +429,7 @@ class CDbMigrationEngine {
         // Commit the migration
         if ($direction == 'up') {
             echo(
-                'Marking migration as applied: ' . get_class($migration) . PHP_EOL
+                'Marking migration as applied: ' . $class . PHP_EOL
             );
             $cmd = Yii::app()->db->commandBuilder->createInsertCommand(
                 self::SCHEMA_TABLE,
@@ -383,7 +437,7 @@ class CDbMigrationEngine {
             )->execute();
         } else {
             echo(
-                'Marking migration as removed: ' . get_class($migration) . PHP_EOL
+                'Marking migration as removed: ' . $class . PHP_EOL
             );
             $sql = 'DELETE FROM '
                  . $this->adapter->db->quoteTableName(self::SCHEMA_TABLE)
