@@ -105,14 +105,6 @@ m20090614213453_MigrationName.php
 
 The migration file names always start with the letter m followed by 14 digit timestamp and an underscore. After that, you can give a name to the migration so that you can easily identify the migration.
 
-If your migration is part of a module, it's a good idea to add the name of the module between the migration ID and name so that the name looks as follows:
-
-<pre>
-m20090614213453_ModuleName_MigrationName.php
-</pre>
-
-This will ensure that there is much less chance for naming conflicts between migrations in different modules.
-
 h3. Implementing the migration
 
 In the migration file, you need to create a class that extends the parent class <code>CDbMigration</code>. The <code>CDbMigration</code> class needs to have the <code>up</code> and <code>down</code> methods as you can see in the following sample migration:
