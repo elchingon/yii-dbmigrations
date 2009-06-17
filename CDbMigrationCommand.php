@@ -26,7 +26,46 @@ class CDbMigrationCommand extends CConsoleCommand {
      *  Return the help for the migrate command.
      */
     public function getHelp() {
-        return 'Used to run database migrations';
+        return <<<EOD
+USAGE
+  migrate [version|up|down|list]
+
+DESCRIPTION
+  This command applies the database migrations which can be found in the
+  migrations directory in your project folder.
+
+PARAMETERS
+ * version: options, the ID of the migration to migrate the database to.
+
+ * up: optional, apply the first migration that is not applied to the database
+   yet.
+
+ * down: remove the last applied migration from the database.
+ 
+ * list: list all the migrations available in the application and show if they
+   are applied or not.
+
+EXAMPLES
+ * Apply all migrations that are not applied yet:
+        migrate
+
+ * Migrate up to version 20090612163144 if it's not applied yet:
+        migrate 20090612163144
+
+ * Migrate down to version 20090612163144 if it's applied already:
+        migrate 20090612163144
+
+ * Apply the first migration that is not applied to the database yet:
+        migrate up
+ 
+ * Remove the last applied migration:
+        migrate down
+
+ * List all the migrations found in the application and their status:
+        migrate list
+
+EOD;
+
     }
     
     /**
