@@ -69,8 +69,8 @@ class CDbMigrationEngine {
             $this->init();
             
             // Check if we need to create a migration
-            if (isset($args[0]) && ($args[0] == 'down')) {
-                $this->applyMigrations('down');
+            if (isset($args[0]) && !empty($args[0])) {
+                $this->applyMigrations($args[0]);
             } else {
                 $this->applyMigrations();
             }
@@ -304,30 +304,33 @@ class CDbMigrationEngine {
             
         }
         
-        // Loop over all possible migrations
-        foreach ($possible as $migrationId => $migrationSpecs) {
+        // We are updating one or more revisions
+        if (empty($version) || $version == 'up') {
             
-            // Include the migration file
-            require_once($migrationSpecs['file']);
-            
-            // Create the migration instance
-            $migration = $this->createMigration(
-                $migrationSpecs['class'], $migrationSpecs['file']
-            );
-            
-            // Check if it's already applied to the database
-            if (!in_array($migration->getId(), $applied)) {
+            // Loop over all possible migrations
+            foreach ($possible as $migrationId => $migrationSpecs) {
                 
-                // Apply the migration to the database
-                $this->applyMigration($migration);
+                // Include the migration file
+                require_once($migrationSpecs['file']);
                 
-            } else {
-                
-                // Skip the already applied migration
-                echo(
-                    'Skipping applied migration: ' . get_class($migration) . PHP_EOL
+                // Create the migration instance
+                $migration = $this->createMigration(
+                    $migrationSpecs['class'], $migrationSpecs['file']
                 );
                 
+                // Check if it's already applied to the database
+                if (!in_array($migration->getId(), $applied)) {
+                
+                    // Apply the migration to the database
+                    $this->applyMigration($migration);
+                    
+                    // If we do up, we stop after the first one
+                    if ($version == 'up') {
+                        break;
+                    }
+                
+                }
+            
             }
             
         }
