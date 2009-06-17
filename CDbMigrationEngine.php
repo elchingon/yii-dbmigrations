@@ -34,15 +34,31 @@ class CDbMigrationEngine {
     private $adapter;
     
     /**
-     *  The name of the table and column for the schema information
+     *  The name of the table that contains the schema information.
      */
     const SCHEMA_TABLE   = 'schema_version';
+    
+    /**
+     *  The field in the schema_version table that contains the id of the 
+     *  installed migrations.
+     */
     const SCHEMA_FIELD   = 'id';
+    
+    /**
+     *  The extension used for the migration files.
+     */
     const SCHEMA_EXT     = 'php';
+    
+    /**
+     *  The directory in which the migrations can be found.
+     */
     const MIGRATIONS_DIR = 'migrations';
     
     /**
-     *  Run the specified command
+     *  Run the database migration engine, passing on the command-line
+     *  arguments.
+     *
+     *  @param $args The command line parameters.
      */
     public function run($args) {
         
@@ -66,7 +82,11 @@ class CDbMigrationEngine {
     }
     
     /**
-     *  Initialize the schema version table
+     *  Initialize the database migration engine. Several things happen during
+     *  this initialization:
+     *  - The system checks if a database connection was configured.
+     *  - The system checks if the database driver supports migrations.
+     *  - If the schema_version table doesn't exist yet, it gets created.
      */
     protected function init() {
         
@@ -121,7 +141,11 @@ class CDbMigrationEngine {
     }
     
     /**
-     *  Get the list of migrations that are applied to the database
+     *  Get the list of migrations that are applied to the database. This
+     *  basically reads out the schema_version table from the database.
+     *
+     *  @returns An array with the IDs of the already applied database
+     *           migrations as found in the database.
      */
     protected function getAppliedMigrations() {
         
@@ -140,7 +164,12 @@ class CDbMigrationEngine {
     }
     
     /**
-     *  Get the list of possible migrations
+     *  Get the list of possible migrations from the file system. This will read
+     *  the contents of the migrations directory and the migrations directory
+     *  inside each installed and enabled module.
+     *
+     *  @returns An array with the IDs of the possible database migrations as
+     *           found in the database.
      */
     protected function getPossibleMigrations() {
         
@@ -163,7 +192,13 @@ class CDbMigrationEngine {
     }
     
     /**
-     *  Get the list of migrations for a specific module
+     *  A helper function to get the list of migrations for a specific module.
+     *  If no module is specified, it will return the list of modules from the
+     *  "protected/migrations" directory.
+     *
+     *  @param $module The name of the module to get the migrations for.
+     *
+     *  @todo Add more checking to see if a file is actually a migration.
      */
     protected function getPossibleMigrationsForModule($module=null) {
         
@@ -199,7 +234,9 @@ class CDbMigrationEngine {
     }
     
     /**
-     *  Apply the migrations
+     *  Apply the migrations to the database. This will apply any migration that
+     *  has not been applied to the database yet. It does this in a 
+     *  chronological order based on the IDs of the migrations.
      */
     protected function applyMigrations() {
         
@@ -236,15 +273,19 @@ class CDbMigrationEngine {
     }
     
     /**
-     *  Apply a specific migration
+     *  Apply a specific migration based on the migration name.
+     *
+     *  @param $migration The name of the migration to apply.
+     *  @param $direction The direction in which the migration needs to be
+     *                    applied. Needs to be "up" or "down".
      */
-    protected function applyMigration($migration) {
+    protected function applyMigration($migration, $direction='up') {
         
         // Apply the migration
         echo('Applying migration: ' . get_class($migration) . PHP_EOL);
         
-        // Create the migration instance
-        $migration->performTransactional('up');
+        // Perform the migration function transactional
+        $migration->performTransactional($direction);
         
         // Commit the migration
         echo(

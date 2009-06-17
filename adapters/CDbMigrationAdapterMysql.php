@@ -13,7 +13,10 @@
  */
 class CDbMigrationAdapterMysql extends CDbMigrationAdapter {
     
-    // Return a map of the native database types
+    /**
+     *  The mapping of the database type definitions to the native database
+     *  types of the database backend.
+     */
     protected $nativeDatabaseTypes = array(
         'primary_key' => 'int(11) DEFAULT NULL auto_increment PRIMARY KEY',
         'string' => 'varchar(255)',

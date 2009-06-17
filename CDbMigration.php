@@ -184,14 +184,25 @@ abstract class CDbMigration {
         return $this->adapter->removeTable($name);
     }
     
-    // Add a database column
+    /**
+     *  Add a database column to an existing table.
+     *
+     *  @param $table   The table to add the column in.
+     *  @param $column  The name of the column to add.
+     *  @param $type    The data type for the new column.
+     *  @param $options The extra options to pass to the column.
+     */
     protected function addColumn($table, $column, $type, $options=null) {
         echo('    >> Adding column ' . $column . ' to table: ' . $table . PHP_EOL);
         return $this->adapter->addColumn($table, $column, $type, $options);
     }
     
     /**
-     *  Rename a database column
+     *  Rename a database column in an existing table.
+     *
+     *  @param $table    The table to rename the column from.
+     *  @param $name     The current name of the column.
+     *  @param $new_name The new name of the column.
      */
     protected function renameColumn($table, $name, $new_name) {
         echo(
@@ -202,7 +213,12 @@ abstract class CDbMigration {
     }
     
     /**
-     *  Change a database column
+     *  Change a database column in an existing table.
+     *
+     *  @param $table The name of the table to change the column from.
+     *  @param $column The name of the column to change.
+     *  @param $type   The new data type for the column.
+     *  @param $options The extra options to pass to the column.
      */
     protected function changeColumn($table, $column, $type, $options=null) {
         echo(
@@ -226,7 +242,12 @@ abstract class CDbMigration {
     }
     
     /**
-     *  Add an index
+     *  Add an index to the database or a specific table.
+     *
+     *  @param $table   The name of the table to add the index to.
+     *  @param $name    The name of the index to create.
+     *  @param $columns The name of the fields to include in the index.
+     *  @param $unique  If set to true, a unique index will be created.
      */
     public function addIndex($table, $name, $columns, $unique=false) {
         echo('    >> Adding index ' . $name . ' to table: ' . $table . PHP_EOL);

@@ -129,7 +129,12 @@ abstract class CDbMigrationAdapter {
     }
     
     /**
-     *  Add a database column
+     *  Add a database column to an existing table.
+     *
+     *  @param $table   The table to add the column in.
+     *  @param $column  The name of the column to add.
+     *  @param $type    The data type for the new column.
+     *  @param $options The extra options to pass to the column.
      */
     public function addColumn($table, $column, $type, $options=null) {
         $type = $this->convertToNativeType($type);
@@ -143,19 +148,11 @@ abstract class CDbMigrationAdapter {
     }
     
     /**
-     *  Change a database column
-     */
-    public function changeColumn($table, $column, $type, $options=null) {
-        $type = $this->convertToNativeType($type);
-        $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' CHANGE '
-             . $this->db->quoteColumnName($column) . ' '
-             . $this->db->quoteColumnName($column) . ' ' . $type . ' '
-             . $options;
-        return $this->execute($sql);
-    }
-    
-    /**
-     *  Rename a database column
+     *  Rename a database column in an existing table.
+     *
+     *  @param $table    The table to rename the column from.
+     *  @param $name     The current name of the column.
+     *  @param $new_name The new name of the column.
      *
      *  @todo We need to retain the column definition
      */
@@ -164,6 +161,23 @@ abstract class CDbMigrationAdapter {
         $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' CHANGE '
              . $this->db->quoteColumnName($name) . ' '
              . $this->db->quoteColumnName($new_name) . ' ' . $type;
+        return $this->execute($sql);
+    }
+    
+    /**
+     *  Change a database column in an existing table.
+     *
+     *  @param $table The name of the table to change the column from.
+     *  @param $column The name of the column to change.
+     *  @param $type   The new data type for the column.
+     *  @param $options The extra options to pass to the column.
+     */
+    public function changeColumn($table, $column, $type, $options=null) {
+        $type = $this->convertToNativeType($type);
+        $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' CHANGE '
+             . $this->db->quoteColumnName($column) . ' '
+             . $this->db->quoteColumnName($column) . ' ' . $type . ' '
+             . $options;
         return $this->execute($sql);
     }
     
@@ -180,7 +194,12 @@ abstract class CDbMigrationAdapter {
     }
     
     /**
-     *  Add an index
+     *  Add an index to the database or a specific table.
+     *
+     *  @param $table   The name of the table to add the index to.
+     *  @param $name    The name of the index to create.
+     *  @param $columns The name of the fields to include in the index.
+     *  @param $unique  If set to true, a unique index will be created.
      */
     public function addIndex($table, $name, $columns, $unique=false) {
         $sql = 'CREATE ';
