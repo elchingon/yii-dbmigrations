@@ -197,8 +197,6 @@ class CDbMigrationEngine {
      *  "protected/migrations" directory.
      *
      *  @param $module The name of the module to get the migrations for.
-     *
-     *  @todo Add more checking to see if a file is actually a migration.
      */
     protected function getPossibleMigrationsForModule($module=null) {
         
@@ -221,9 +219,35 @@ class CDbMigrationEngine {
                 array('fileTypes' => array(self::SCHEMA_EXT), 'level' => 0)
             );
             foreach ($migrationFiles as $migration) {
+                
+                // Check if it's valid
+                if (substr(basename($migration), 0, 1) != 'm') {
+                    continue;
+                }
+                
+                // Include the file
+                include($migration);
+                
+                // Get the class name
+                $className = basename($migration, '.' . self::SCHEMA_EXT);
+                
+                // Check if the class exists
+                if (!class_exists($className)) {
+                    continue;
+                }
+                
+                // Check if the class is a valid migration
+                $migrationReflection = new ReflectionClass($className);
+                $baseReflection = new ReflectionClass('CDbMigration');
+                if (!$migrationReflection->isSubclassOf($baseReflection)) {
+                    continue;
+                }
+                
+                // Add it the list
                 $migrations[$migration] = basename(
                     $migration, '.' . self::SCHEMA_EXT
                 );
+                
             }
             
         }
@@ -248,7 +272,7 @@ class CDbMigrationEngine {
         foreach ($possible as $migrationFile => $migration) {
             
             // Include the migration file
-            require($migrationFile);
+            require_once($migrationFile);
             
             // Create the migration instance
             $migration = new $migration($this->adapter);
