@@ -28,7 +28,7 @@ abstract class CDbMigration {
      *  The CDbMigrationAdapater that is used to perform the actual migrations
      *  on the database.
      */
-    private $adapter;
+    public $adapter;
     
     /**
      *  Class constructor for the CDbMigration class.

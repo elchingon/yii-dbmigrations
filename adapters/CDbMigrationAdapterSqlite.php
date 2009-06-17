@@ -9,6 +9,8 @@
  */
 
 /**
+ *  The SQLite specific version of the database migration adapter.
+ *
  *  @package extensions.yii-dbmigrations
  */
 class CDbMigrationAdapterSqlite extends CDbMigrationAdapter {
@@ -32,6 +34,17 @@ class CDbMigrationAdapterSqlite extends CDbMigrationAdapter {
         'boolean' => 'tinyint(1)',
         'bool' => 'tinyint(1)',
     );
+    
+    /**
+     *  Retrieve the type information from a database column.
+     *
+     *  @returns The current data type of the column.
+     */
+    public function columnInfo($table, $name) {
+        throw new CDbMigrationException(
+            'columnInfo is not supported for SQLite'
+        );
+    }
     
     /**
      *  Rename a table.

@@ -9,6 +9,8 @@
  */
 
 /**
+ *  The SQLite specific version of the database migration adapter.
+ *
  *  @package extensions.yii-dbmigrations
  */
 class CDbMigrationAdapterMysql extends CDbMigrationAdapter {
@@ -32,5 +34,41 @@ class CDbMigrationAdapterMysql extends CDbMigrationAdapter {
         'boolean' => 'tinyint(1)',
         'bool' => 'tinyint(1)',
     );
+    
+    /**
+     *  Retrieve the type information from a database column.
+     *
+     *  @returns The current data type of the column.
+     */
+    public function columnInfo($table, $name) {
+        
+        // Get the column info from the database
+        $sql = 'SHOW COLUMNS FROM ' . $this->db->quoteTableName($table)
+             . ' LIKE ' . $this->db->quoteValue($name);
+        $columnInfo = $this->db->createCommand($sql)->queryRow();
+        
+        // Check if we have column info
+        if ($columnInfo === false) {
+            throw new CDbMigrationException(
+                'Column: ' . $name . ' not found in table: ' . $table
+            );
+        }
+        
+        // Construct the column type as text
+        $type = $columnInfo['Type'];
+        if ($columnInfo['Null'] !== 'YES') {
+            $type .= ' NOT NULL';
+        }
+        if (!empty($columnInfo['Default'])) {
+            $type .= ' DEFAULT ' . $this->db->quoteValue($columnInfo['Default']);
+        }
+        if (!empty($columnInfo['Extra'])) {
+            $type .= ' ' . $columnInfo['Extra'];
+        }
+        
+        // Return the column type
+        return $type;
+        
+    }
     
 }

@@ -86,7 +86,7 @@ abstract class CDbMigrationAdapter {
     /**
      *  Retrieve the type information from a database column.
      *
-     *  @todo Still to be implemented.
+     *  @returns The current data type of the column.
      */
     public function columnInfo($table, $name) {
     }
@@ -153,8 +153,6 @@ abstract class CDbMigrationAdapter {
      *  @param $table    The table to rename the column from.
      *  @param $name     The current name of the column.
      *  @param $new_name The new name of the column.
-     *
-     *  @todo We need to retain the column definition
      */
     public function renameColumn($table, $name, $new_name) {
         $type = $this->columnInfo($table, $name);
