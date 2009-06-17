@@ -69,8 +69,8 @@ class CDbMigrationEngine {
             $this->init();
             
             // Check if we need to create a migration
-            if (isset($args[0]) && ($args[0] == 'create')) {
-                $this->create($args[0]);
+            if (isset($args[0]) && ($args[0] == 'down')) {
+                $this->applyMigrations('down');
             } else {
                 $this->applyMigrations();
             }
@@ -176,12 +176,14 @@ class CDbMigrationEngine {
         // Get the migrations for the default application
         $migrations = $this->getPossibleMigrationsForModule();
         
+        /*
         // Get the migrations for each installed and enabled module
         foreach (Yii::app()->modules as $module => $moduleData) {
             $migrations = array_merge(
                 $migrations, $this->getPossibleMigrationsForModule($module)
             );
         }
+        */
         
         // Sort them based on the file path (which is the key in the array)
         ksort($migrations);
@@ -232,7 +234,7 @@ class CDbMigrationEngine {
                 $className = basename($migration, '.' . self::SCHEMA_EXT);
                 
                 // Check if the class exists
-                if (!class_exists($className)) {
+                if (!class_exists($className) || strlen($className) < 16) {
                     continue;
                 }
                 
@@ -243,9 +245,11 @@ class CDbMigrationEngine {
                     continue;
                 }
                 
-                // Add it the list
-                $migrations[$migration] = basename(
-                    $migration, '.' . self::SCHEMA_EXT
+                // Add them to the list
+                $id = substr($className, 1, 14);
+                $migrations[$id] = array(
+                    'file'  => $migration,
+                    'class' => $className,
                 );
                 
             }
@@ -261,21 +265,55 @@ class CDbMigrationEngine {
      *  Apply the migrations to the database. This will apply any migration that
      *  has not been applied to the database yet. It does this in a 
      *  chronological order based on the IDs of the migrations.
+     *
+     *  @param $version The version to migrate to. If you specify the special
+     *                  cases "up" or "down", it will go one migration "up" or
+     *                  "down". If it's a number, if will migrate "up" or "down"
+     *                  to that specific version.
      */
-    protected function applyMigrations() {
+    protected function applyMigrations($version='') {
         
         // Get the list of applied and possible migrations
         $applied = $this->getAppliedMigrations();
         $possible = $this->getPossibleMigrations();
         
+        // Check what needs to happen
+        if ($version == 'down') {
+            
+            // Check if there are any applied migrations
+            if (sizeof($applied) == 0) {
+                throw new CDbMigrationEngineException(
+                    'No migrations are applied to the database yet.'
+                );
+            }
+            
+            // Get the last applied migration
+            $lastMigration = array_pop($applied);
+            
+            // Get the details
+            $migration = $this->createMigration(
+                $possible[$lastMigration]['class'],
+                $possible[$lastMigration]['file']
+            );
+            
+            // Apply the migration
+            $this->applyMigration($migration, 'down');
+            
+            // Return
+            return;
+            
+        }
+        
         // Loop over all possible migrations
-        foreach ($possible as $migrationFile => $migration) {
+        foreach ($possible as $migrationId => $migrationSpecs) {
             
             // Include the migration file
-            require_once($migrationFile);
+            require_once($migrationSpecs['file']);
             
             // Create the migration instance
-            $migration = new $migration($this->adapter);
+            $migration = $this->createMigration(
+                $migrationSpecs['class'], $migrationSpecs['file']
+            );
             
             // Check if it's already applied to the database
             if (!in_array($migration->getId(), $applied)) {
@@ -291,8 +329,24 @@ class CDbMigrationEngine {
                 );
                 
             }
-
+            
         }
+        
+    }
+    
+    /**
+     *  This function creates a migration instance.
+     *
+     *  @param $id   The ID of the migration.
+     *  @param $file The file in which the migration exists
+     */
+    protected function createMigration($class, $file) {
+        
+        // Include the migration file
+        require_once($file);
+        
+        // Create the migration instance
+        return new $class($this->adapter);
 
     }
     
@@ -306,19 +360,36 @@ class CDbMigrationEngine {
     protected function applyMigration($migration, $direction='up') {
         
         // Apply the migration
-        echo('Applying migration: ' . get_class($migration) . PHP_EOL);
+        if ($direction == 'up') {
+            echo('Applying migration: ' . get_class($migration) . PHP_EOL);
+        } else {
+            echo('Removing migration: ' . get_class($migration) . PHP_EOL);
+        }
         
         // Perform the migration function transactional
         $migration->performTransactional($direction);
         
         // Commit the migration
-        echo(
-            'Marking migration as applied: ' . get_class($migration) . PHP_EOL
-        );
-        $cmd = Yii::app()->db->commandBuilder->createInsertCommand(
-            self::SCHEMA_TABLE,
-            array(self::SCHEMA_FIELD => $migration->getId())
-        )->execute();
+        if ($direction == 'up') {
+            echo(
+                'Marking migration as applied: ' . get_class($migration) . PHP_EOL
+            );
+            $cmd = Yii::app()->db->commandBuilder->createInsertCommand(
+                self::SCHEMA_TABLE,
+                array(self::SCHEMA_FIELD => $migration->getId())
+            )->execute();
+        } else {
+            echo(
+                'Marking migration as removed: ' . get_class($migration) . PHP_EOL
+            );
+            $sql = 'DELETE FROM '
+                 . $this->adapter->db->quoteTableName(self::SCHEMA_TABLE)
+                 . ' WHERE '
+                 . $this->adapter->db->quoteColumnName(self::SCHEMA_FIELD)
+                 . ' = '
+                 . $this->adapter->db->quoteValue($migration->getId());
+            $this->adapter->execute($sql);
+        }
         
     }
     
