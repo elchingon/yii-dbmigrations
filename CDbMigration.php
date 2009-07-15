@@ -69,6 +69,7 @@ abstract class CDbMigration {
             $this->$command();
             $transaction->commit();
         } catch (Exception $e) {
+            echo('ERROR: '. $e->getMessage() . PHP_EOL);
             $transaction->rollback();
         }
         
