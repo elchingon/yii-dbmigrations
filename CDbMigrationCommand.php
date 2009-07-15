@@ -74,8 +74,12 @@ EOD;
      *  @param $args The command line parameters
      */
     public function run($args) {
-        $engine = new CDbMigrationEngine();
-        $engine->run($args);
+        try {
+            $engine = new CDbMigrationEngine();
+            $engine->run($args);
+        } catch (Exception $e) {
+            echo('FATAL ERROR: ' . $e->getMessage());
+        }
     }
     
 }
