@@ -138,9 +138,6 @@ abstract class CDbMigrationAdapter {
      */
     public function addColumn($table, $column, $type, $options=null) {
         $type = $this->convertToNativeType($type);
-        if (empty($options)) {
-            $options = 'NOT NULL';
-        }
         $sql = 'ALTER TABLE ' . $this->db->quoteTableName($table) . ' ADD '
              . $this->db->quoteColumnName($column) . ' ' . $type . ' '
              . $options;
