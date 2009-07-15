@@ -97,4 +97,15 @@ class CDbMigrationAdapterSqlite extends CDbMigrationAdapter {
         );
     }
     
+    /**
+     *  Remove a table index from the database.
+     *
+     *  @param $table  The name of the table to remove the index from.
+     *  @param $column The name of the table index to remove.
+     */
+    public function removeIndex($table, $name) {
+        $sql = 'DROP INDEX ' . $this->db->quoteTableName($name);
+        return $this->execute($sql);
+    }
+    
 }
