@@ -456,18 +456,20 @@ class CDbMigrationEngine {
         
         // Apply the migration
         if ($direction == 'up') {
-            echo('Applying migration: ' . $class . PHP_EOL);
+            echo('=== Applying migration: ' . $class . ' =========' . PHP_EOL);
         } else {
-            echo('Removing migration: ' . $class . PHP_EOL);
+            echo('=== Removing migration: ' . $class . ' =========' . PHP_EOL);
         }
+        echo(PHP_EOL);
         
         // Perform the migration function transactional
         $migration->performTransactional($direction);
         
         // Commit the migration
+        echo(PHP_EOL);
         if ($direction == 'up') {
             echo(
-                'Marking migration as applied: ' . $class . PHP_EOL
+                '    Marking migration as applied: ' . $class . PHP_EOL . PHP_EOL
             );
             $cmd = Yii::app()->db->commandBuilder->createInsertCommand(
                 self::SCHEMA_TABLE,
@@ -475,7 +477,7 @@ class CDbMigrationEngine {
             )->execute();
         } else {
             echo(
-                'Marking migration as removed: ' . $class . PHP_EOL
+                '    Marking migration as removed: ' . $class . PHP_EOL . PHP_EOL
             );
             $sql = 'DELETE FROM '
                  . $this->adapter->db->quoteTableName(self::SCHEMA_TABLE)
