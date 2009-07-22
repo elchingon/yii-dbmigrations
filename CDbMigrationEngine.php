@@ -55,6 +55,16 @@ class CDbMigrationEngine {
     const MIGRATIONS_DIR = 'migrations';
     
     /**
+     *  The command line arguments passed to the system.
+     */
+    private $args;
+    
+    /**
+     *  The full path to the migrations
+     */
+    private $migrationsDir;
+    
+    /**
      *  Run the database migration engine, passing on the command-line
      *  arguments.
      *
@@ -64,6 +74,9 @@ class CDbMigrationEngine {
         
         // Catch errors
         try {
+        
+            // Remember the arguments
+            $this->args = $args;
             
             // Initialize the engine
             $this->init();
@@ -84,11 +97,19 @@ class CDbMigrationEngine {
     /**
      *  Initialize the database migration engine. Several things happen during
      *  this initialization:
+     *  - Constructs the full path to the migrations
      *  - The system checks if a database connection was configured.
      *  - The system checks if the database driver supports migrations.
      *  - If the schema_version table doesn't exist yet, it gets created.
      */
     protected function init() {
+        
+        // Construct the path to the migrations dir
+        $this->migrationsDir = Yii::app()->basePath;
+        if (!empty($module)) {
+            $this->migrationsDir .= '/modules/' . trim($module, '/');
+        }
+        $this->migrationsDir .= '/' . self::MIGRATIONS_DIR;
         
         // Check if a database connection was configured
         try {
@@ -202,22 +223,15 @@ class CDbMigrationEngine {
      */
     protected function getPossibleMigrationsForModule($module=null) {
         
-        // Get the path to the migrations dir
-        $path = Yii::app()->basePath;
-        if (!empty($module)) {
-            $path .= '/modules/' . trim($module, '/');
-        }
-        $path .= '/' . self::MIGRATIONS_DIR;
-        
         // Start with an empty list
         $migrations = array();
         
         // Check if the migrations directory actually exists
-        if (is_dir($path)) {
+        if (is_dir($this->migrationsDir)) {
             
             // Construct the list of migrations
             $migrationFiles = CFileHelper::findFiles(
-                $path,
+                $this->migrationsDir,
                 array('fileTypes' => array(self::SCHEMA_EXT), 'level' => 0)
             );
             foreach ($migrationFiles as $migration) {
@@ -288,6 +302,30 @@ class CDbMigrationEngine {
                     echo('Not Applied: ' . $specs['class'] . PHP_EOL);
                 }
             }
+            
+        } elseif ($version == 'create') {
+            
+            // Get the name from the migration
+            $name = 'UntitledMigration';
+            if (isset($this->args[1]) && !empty($this->args[1])) {
+                $name = trim($this->args[1]);
+            }
+            $name = strftime('m%Y%m%d%H%M%S_' . $name);
+            
+            // Read the template file
+            $data = file_get_contents(
+                dirname(__FILE__) . '/templates/migration.php'
+            );
+            $data = str_replace('${name}', $name, $data);
+            
+            // Save the file
+            if (!is_dir($this->migrationsDir)) {
+                mkdir($this->migrationsDir);
+            }
+            file_put_contents(
+                $this->migrationsDir . '/' . $name . '.php', $data
+            );
+            echo('Created migration: ' . $name . '.php' . PHP_EOL);
             
         } elseif ($version == 'down') {
             

@@ -28,13 +28,15 @@ class CDbMigrationCommand extends CConsoleCommand {
     public function getHelp() {
         return <<<EOD
 USAGE
-  migrate [version|up|down|list]
+  migrate [create|version|up|down|list]
 
 DESCRIPTION
   This command applies the database migrations which can be found in the
   migrations directory in your project folder.
 
 PARAMETERS
+ * create: creates a new migration in the migrations directory.
+ 
  * version: options, the ID of the migration to migrate the database to.
 
  * up: optional, apply the first migration that is not applied to the database
@@ -63,6 +65,12 @@ EXAMPLES
 
  * List all the migrations found in the application and their status:
         migrate list
+        
+ * Create a new migration
+        migrate create
+        
+ * Create a new name migration
+        migrate create MyMigrationName
 
 EOD;
 
