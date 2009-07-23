@@ -67,7 +67,11 @@ abstract class CDbMigrationAdapter {
      *  @returns The number of affected rows.
      */
     public function execute($query, $params=array()) {
-        return $this->db->createCommand($query)->execute();
+        $cmd = $this->db->createCommand($query);
+        foreach ($params as $key => $param) {
+            $cmd->bindValue($key, $param);
+        }
+        return $cmd->execute();
     }
     
     /**
@@ -80,7 +84,11 @@ abstract class CDbMigrationAdapter {
      *  @returns The rows returned from the database.
      */
     public function query($query, $params=array()) {
-        return $this->db->createCommand($query)->queryAll();
+        $cmd = $this->db->createCommand($query);
+        foreach ($params as $key => $param) {
+            $cmd->bindParam($key, $param);
+        }
+        return $cmd->queryAll();
     }
     
     /**
