@@ -296,11 +296,10 @@ class CDbMigrationEngine {
             
             // List the status of all migrations
             foreach ($possible as $id => $specs) {
-                if (in_array($id, $applied)) {
-                    echo('Applied:     ' . $specs['class'] . PHP_EOL);
-                } else {
-                    echo('Not Applied: ' . $specs['class'] . PHP_EOL);
-                }
+                $status = in_array($id, $applied) ? 'Applied:     ' : 'Not Applied: ';
+                $name   = substr(basename($specs['file'], '.php'), 1);
+                $name   = str_replace('_', ' ', $name);
+                echo("${status} ${name}" . PHP_EOL);
             }
             
         } elseif ($version == 'create') {
@@ -447,6 +446,10 @@ class CDbMigrationEngine {
      *                    applied. Needs to be "up" or "down".
      */
     protected function applyMigration($class, $file, $direction='up') {
+        
+        // Close and open the database connection
+        Yii::app()->db->active = false;
+        Yii::app()->db->active = true;
         
         // Include the migration file
         require_once($file);
