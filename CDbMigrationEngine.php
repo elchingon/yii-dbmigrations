@@ -447,10 +447,6 @@ class CDbMigrationEngine {
      */
     protected function applyMigration($class, $file, $direction='up') {
         
-        // Close and open the database connection
-        Yii::app()->db->active = false;
-        Yii::app()->db->active = true;
-        
         // Include the migration file
         require_once($file);
         
