@@ -242,7 +242,7 @@ class CDbMigrationEngine {
                 }
                 
                 // Include the file
-                include($migration);
+                include_once($migration);
                 
                 // Get the class name
                 $className = basename($migration, '.' . self::SCHEMA_EXT);
@@ -339,6 +339,12 @@ class CDbMigrationEngine {
                     'down'
                 );
             }
+
+        } elseif ($version == 'redo') {
+
+            // Redo the last migration
+            $this->applyMigrations('down');
+            $this->applyMigrations('up');
             
         } elseif ($version == 'up') {
             

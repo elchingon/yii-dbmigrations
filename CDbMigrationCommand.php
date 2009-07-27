@@ -43,6 +43,8 @@ PARAMETERS
    yet.
 
  * down: remove the last applied migration from the database.
+
+ * redo: redo the last migration (removes and installs it again)
  
  * list: list all the migrations available in the application and show if they
    are applied or not.
@@ -62,7 +64,10 @@ EXAMPLES
  
  * Remove the last applied migration:
         migrate down
-
+        
+ * Re-apply the last applied migration:
+        migrate redo
+        
  * List all the migrations found in the application and their status:
         migrate list
         
