@@ -291,6 +291,10 @@ class CDbMigrationEngine {
         $applied  = $this->getAppliedMigrations();
         $possible = $this->getPossibleMigrations();
         
+        // Show the migrations directory
+        $dir = substr($this->migrationsDir, strlen(dirname(Yii::app()->basePath)) + 1) . '/';
+        echo('Migrations directory: ' . $dir . PHP_EOL . PHP_EOL);
+        
         // Check what which action need to happen
         if ($version == 'list') {
             
@@ -324,7 +328,7 @@ class CDbMigrationEngine {
             file_put_contents(
                 $this->migrationsDir . '/' . $name . '.php', $data
             );
-            echo('Created migration: ' . $name . '.php' . PHP_EOL);
+            echo('Created migration: ' . $dir . $name . '.php' . PHP_EOL);
             
         } elseif ($version == 'down') {
             
