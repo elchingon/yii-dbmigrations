@@ -87,12 +87,24 @@ EOD;
      *  @param $args The command line parameters
      */
     public function run($args) {
+        
+        // Catch errors
         try {
+            
+            // Set a constant so that we know we are running migrations
+            define('YII_MIGRATING', true);
+            
+            // Create the engine and run it
             $engine = new CDbMigrationEngine();
             $engine->run($args);
+            
         } catch (Exception $e) {
+            
+            // Something went wrong, show the error message
             echo('FATAL ERROR: ' . $e->getMessage());
+            
         }
+        
     }
     
 }
