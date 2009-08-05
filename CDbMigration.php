@@ -223,7 +223,7 @@ abstract class CDbMigration {
      */
     protected function changeColumn($table, $column, $type, $options=null) {
         echo(
-            '    >> Chaning column ' . $name . ' to: ' . $type
+            '    >> Changing column ' . $column . ' to: ' . $type
             . ' in table: ' . $table . PHP_EOL
         );
         return $this->adapter->changeColumn($table, $column, $type, $options);
