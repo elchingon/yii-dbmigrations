@@ -111,6 +111,10 @@ class CDbMigrationEngine {
         }
         $this->migrationsDir .= '/' . self::MIGRATIONS_DIR;
         
+        // Show the migrations directory
+        $dir = substr($this->migrationsDir, strlen(dirname(Yii::app()->basePath)) + 1) . '/';
+        echo('Migrations directory: ' . $dir . PHP_EOL . PHP_EOL);
+        
         // Check if a database connection was configured
         try {
             Yii::app()->db;
@@ -290,10 +294,6 @@ class CDbMigrationEngine {
         // Get the list of applied and possible migrations
         $applied  = $this->getAppliedMigrations();
         $possible = $this->getPossibleMigrations();
-        
-        // Show the migrations directory
-        $dir = substr($this->migrationsDir, strlen(dirname(Yii::app()->basePath)) + 1) . '/';
-        echo('Migrations directory: ' . $dir . PHP_EOL . PHP_EOL);
         
         // Check what which action need to happen
         if ($version == 'list') {
