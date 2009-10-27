@@ -182,10 +182,8 @@ class CDbMigrationEngine {
         $sql = 'SELECT ' . $field . ' FROM ' . $table . ' ORDER BY ' . $field;
                 
         // Get the list
-        return Yii::app()->db->createCommand($sql)->queryColumn(
-            self::SCHEMA_FIELD
-        );
-                
+        return Yii::app()->db->createCommand($sql)->queryColumn();
+        
     }
     
     /**
