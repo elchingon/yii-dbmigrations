@@ -103,7 +103,7 @@ abstract class CDbMigration {
      *  @returns The ID of the migration.
      */
     public function getId() {
-        $id = split('_', get_class($this));
+        $id = explode('_', get_class($this));
         return substr($id[0], 1);
     }
     
@@ -121,7 +121,7 @@ abstract class CDbMigration {
      *  @returns The name of the migration.
      */
     public function getName() {
-        $name = split('_', get_class($this));
+        $name = explode('_', get_class($this));
         return join('_', array_slice($name, 1, sizeof($name) - 1));
     }
     
