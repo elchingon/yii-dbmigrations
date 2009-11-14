@@ -156,12 +156,44 @@ abstract class CDbMigration {
      *  database.
      *
      *  @param $name    The name of the table to create.
-     *  @param $column  The column definition for the database table
+     *  @param $columns The column definition for the database table
      *  @param $options The extra options to pass to the database creation.
      */
     protected function createTable($name, $columns=array(), $options=null) {
         echo('    >> Creating table: ' . $name . PHP_EOL);
         return $this->adapter->createTable($name, $columns, $options);
+    }
+    
+    /**
+     *  Create a new table
+     *
+     *  @param $name    The name of the table to create.
+     *  @param $options The extra options to pass to the database creation.
+     */
+    protected function newTable($name, $options=null) {
+        return new CDbMigrationTable($name, $options);
+    }
+    
+    /**
+     *  Add a table
+     *
+     *  @param $table The CDbTable definition
+     *  @param $options The extra options to pass to the database creation.
+     */
+    protected function addTable(CDbMigrationTable $table) {
+        
+        // Add the table
+        if (sizeof($table->columns) > 0) {
+            $this->createTable($table->name, $table->columns, $table->options);
+        }
+        
+        // Add the indexes
+        if (sizeof($table->indexes) > 0) {
+            foreach ($table->indexes as $index) {
+                $this->addIndex($table->name, $index[0], $index[1], $index[2]);
+            }
+        }
+        
     }
     
     /**
