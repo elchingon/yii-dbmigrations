@@ -76,7 +76,7 @@ h3. Testing your installation
 To test if the installation was succesfull, you can run the yiic command and should see the following output:
 
 <pre>
-Yii command runner (based on Yii v1.0.6)
+Yii command runner (based on Yii v1.0.10)
 Usage: protected/yiic <command-name> [parameters...]
 
 The following commands are available:
@@ -103,6 +103,15 @@ m20090614213453_MigrationName.php
 
 The migration file names always start with the letter m followed by 14 digit timestamp and an underscore. After that, you can give a name to the migration so that you can easily identify the migration.
 
+You can also use the <code>protected/yiic migrate create <MigrationName></code> to create a new empty migration:
+
+<pre>
+$ protected/yiic migrate create TestMigration
+Migrations directory: protected/migrations/
+
+Created migration: m20091114210716_TestMigration.php
+</pre>
+
 h3. Implementing the migration
 
 In the migration file, you need to create a class that extends the parent class <code>CDbMigration</code>. The <code>CDbMigration</code> class needs to have the <code>up</code> and <code>down</code> methods as you can see in the following sample migration:
@@ -110,25 +119,25 @@ In the migration file, you need to create a class that extends the parent class 
 <pre>
 class m20090611153243_CreateTables extends CDbMigration {
 
+    // Apply the migration
     public function up() {
 
-        $this->createTable(
-            'posts',
-            array(
-                array('id', 'primary_key'),
-                array('title', 'string'),
-                array('body', 'text'),
-            )
-        );
-
-        $this->addIndex(
-            'posts', 'posts_title', array('title')
-        );
+        // Create the posts table
+        $t = $this->newTable('posts');
+        $t->primary_key('id');
+        $t->string('title');
+        $t->text('body');
+        $t->index('posts_title', 'title');
+        $this->addTable($t);
 
     }
 
+    // Remove the migration
     public function down() {
+
+        // Remove the table
         $this->removeTable('posts');
+
     }
 
 }
@@ -141,6 +150,8 @@ In the migration class, you have the following functionality available:
 * execute: execute a raw SQL statement that doesn't return any data.
 * query: execute a raw SQL statement that returns data.
 * createTable: create a new table
+* newTable: creates a new table definition
+* addTable: adds the table definition to the migration
 * renameTable: rename a table
 * removeTable: remove a table
 * addColumn: add a column to a table
@@ -168,6 +179,46 @@ When specifying fields, we also support a type mapping so that you can use gener
 
 You can also specify a database specific type when defining a field, but this will make your migrations less portable across database engines.
 
+h3. Short syntax to create tables
+
+There is also a short syntax to create tables which is a lot more concise than
+using the <code>createTable</code> syntax. To use this syntax, you need to perform 3 different steps:
+
+h4. Create a new table definition
+
+The first step is to create a new table definition in your migration:
+
+<pre>
+$t = $this->newTable('<tableName>');
+</pre>
+
+h4. Add the fields and indexes
+
+Now, you can add fields and indexes to your table definition. The name of the function indicates the type of field to add:
+
+<pre>
+$t->primary_key('id');
+$t->string('title');
+$t->text('body');
+</pre>
+
+Adding indexes is done by the <code>index</code> and <code>unique</code> functions:
+
+<pre>
+$t->index('title');
+$t->unique('title');
+</pre>
+
+h4. Creating the table
+
+To actually create the table, you need to add the definition to the migration using the <code>addTable</code> function:
+
+<pre>
+$this->addTable($t);
+</pre>
+
+It will now create the table and indexes.
+
 h2. Applying migrations
 
 Once you created the migrations, you can apply them to your database by running the <code>migrate</code> command:
@@ -179,39 +230,112 @@ protected/yiic migrate
 You will see the following output:
 
 <pre>
+Migrations directory: protected/migrations/
+
 Creating initial schema_version table
-Applying migration: m20090611153243_CreateTables
+=== Applying: m20090611153243_CreateTables =====================================
     >> Creating table: posts
     >> Adding index posts_title to table: posts
-Marking migration as applied: m20090611153243_CreateTables
-Applying migration: m20090612162832_CreateTags
+=== Marked as applied: m20090611153243_CreateTables ============================
+
+=== Applying: m20090612162832_CreateTags =======================================
     >> Creating table: tags
     >> Creating table: post_tags
     >> Adding index post_tags_post_tag to table: post_tags
-Marking migration as applied: m20090612162832_CreateTags
-Applying migration: m20090612163144_RenameTagsTable
+=== Marked as applied: m20090612162832_CreateTags ==============================
+
+=== Applying: m20090612163144_RenameTagsTable ==================================
     >> Renaming table: post_tags to: post_tags_link_table
-Marking migration as applied: m20090612163144_RenameTagsTable
-Applying migration: m20090616153243_Test_CreateTables
-    >> Creating table: test_pages
-    >> Adding index test_pages_title to table: test_pages
-Marking migration as applied: m20090616153243_Test_CreateTables
+=== Marked as applied: m20090612163144_RenameTagsTable =========================
 </pre>
 
 It will apply all the migrations found in the <code>protected/migrations</code> directory provided they were not applied to the database yet.
 
 It will also apply any migrations found in the <code>migrations</code> directory inside each module which is enabled in the application.
 
-If you run the <code>migrate</code> command again, it will show that the migrations were applied already:
+If you run the <code>migrate</code> command again, it will show nothing as the migrations were applied already:
 
 <pre>
-Skipping applied migration: m20090611153243_CreateTables
-Skipping applied migration: m20090612162832_CreateTags
-Skipping applied migration: m20090612163144_RenameTagsTable
-Skipping applied migration: m20090616153243_Test_CreateTables
+Migrations directory: protected/migrations/
 </pre>
 
 Since the <code>migrate</code> command checks based on the ID of each migration, it can detect that a migration is already applied to the database and therefor doesn't need to be applied anymore.
+
+h2. protected/yiic migrate command reference
+
+The complete reference to the migrate command can be obtained by running the <code>protected/yiic help migrate</code> command. This outputs the following help:
+
+<pre>
+USAGE
+  migrate [create|version|up|down|list]
+
+DESCRIPTION
+  This command applies the database migrations which can be found in the
+  migrations directory in your project folder.
+
+PARAMETERS
+ * create: creates a new migration in the migrations directory.
+
+ * version: options, the ID of the migration to migrate the database to.
+
+ * up: optional, apply the first migration that is not applied to the database
+   yet.
+
+ * down: remove the last applied migration from the database.
+
+ * redo: redo the last migration (removes and installs it again)
+
+ * list: list all the migrations available in the application and show if they
+   are applied or not.
+
+EXAMPLES
+ * Apply all migrations that are not applied yet:
+        migrate
+
+ * Migrate up to version 20090612163144 if it's not applied yet:
+        migrate 20090612163144
+
+ * Migrate down to version 20090612163144 if it's applied already:
+        migrate 20090612163144
+
+ * Apply the first migration that is not applied to the database yet:
+        migrate up
+
+ * Remove the last applied migration:
+        migrate down
+
+ * Re-apply the last applied migration:
+        migrate redo
+
+ * List all the migrations found in the application and their status:
+        migrate list
+
+ * Create a new migration
+        migrate create
+
+ * Create a new name migration
+        migrate create MyMigrationName
+</pre>
+
+h2. Data types
+
+The yii-dbmigrations package supports the following data types:
+
+|*type*|*MySQL*|*SQLite*|
+|primary_key|<code>int(11) DEFAULT NULL auto_increment PRIMARY KEY</code>|<code>INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL</code>|
+|string|<code>varchar(255)</code>|<code>varchar(255)</code>|
+|text|<code>text</code>|<code>text</code>|
+|integer|<code>int(4)</code>|<code>integer</code>|
+|float|<code>float</code>|<code>float</code>|
+|decimal|<code>decimal</code>|<code>decimal</code>|
+|datetime|<code>datetime</code>|<code>datetime</code>|
+|timestamp|<code>datetime</code>|<code>datetime</code>|
+|time|<code>time</code>|<code>time</code>|
+|date|<code>date</code>|<code>date</code>|
+|binary|<code>blob</code>|<code>blob</code>|
+|boolean|<code>tinyint(1)</code>|<code>tinyint(1)</code>|
+|bool|<code>tinyint(1)</code>|<code>tinyint(1)</code>|
+
 
 h2. Author information
 
