@@ -2,25 +2,25 @@
 
 class m20090611153243_CreateTables extends CDbMigration {
     
+    // Apply the migration
     public function up() {
         
-        $this->createTable(
-            'posts',
-            array(
-                array('id', 'primary_key'),
-                array('title', 'string'),
-                array('body', 'text'),
-            )
-        );
-        
-        $this->addIndex(
-            'posts', 'posts_title', array('title')
-        );
+        // Create the posts table
+        $t = $this->newTable('posts');
+        $t->primary_key('id');
+        $t->string('title');
+        $t->text('body');
+        $t->index('posts_title', 'title');
+        $this->addTable($t);
         
     }
     
+    // Remove the migration
     public function down() {
+        
+        // Remove the table
         $this->removeTable('posts');
+        
     }
     
 }
